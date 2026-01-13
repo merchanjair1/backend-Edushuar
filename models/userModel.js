@@ -1,12 +1,14 @@
-
 class User {
-  constructor({ id = null, username, email, password, role = "user", photoProfile = null }) {
+  constructor({ id = null, authId, firstName, lastName, photoProfile = null, birthdate = null, role = "student", status = "active", createdAt = null }) {
     this.id = id
-    this.username = username
-    this.email = email
-    this.password = password
-    this.role = role
+    this.authId = authId
+    this.firstName = firstName
+    this.lastName = lastName
     this.photoProfile = photoProfile
+    this.birthdate = birthdate
+    this.role = role
+    this.status = status
+    this.createdAt = createdAt
   }
 }
 

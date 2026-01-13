@@ -1,9 +1,11 @@
-const UserRepository = require("../repositories/UserRepository")
-const User = require("../models/userModel")
+const UserRepository = require("../repositories/userRepository")
+// Note: We don't import User model here anymore to instatiate it before saving, 
+// because we need to separate Auth data from User data. 
+// The Repository will handle the creation of the User entity after Auth.
 
-exports.createUser = async ({ username, email, password, role, photoProfile }) => {
-  const user = new User({ username, email, password, role, photoProfile })
-  return await UserRepository.save(user)
+exports.createUser = async (userData) => {
+  // userData: { firstName, lastName, email, password, role, photoProfile, birthdate }
+  return await UserRepository.save(userData) // Pass raw DTO
 }
 
 exports.getAllUsers = async () => {

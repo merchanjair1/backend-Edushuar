@@ -1,14 +1,7 @@
 const userUseCases = require("../usecases/userUseCases")
 const { success, error } = require("../utils/responseHandler")
 
-exports.createUser = async (req, res) => {
-  try {
-    const { user, token } = await userUseCases.createUser(req.body)
-    return success(res, { id: user.id, token }, 201)
-  } catch (e) {
-    return error(res, e.message, 400)
-  }
-}
+
 
 exports.listUsers = async (req, res) => {
   try {
@@ -50,26 +43,3 @@ exports.deleteUser = async (req, res) => {
   }
 }
 
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body
-    if (!email || !password) return error(res, "Email y password son requeridos", 400)
-
-    const { user, token } = await userUseCases.login({ email, password })
-    return success(res, { user, token })
-  } catch (e) {
-    return error(res, e.message, 400)
-  }
-}
-
-exports.googleLogin = async (req, res) => {
-  try {
-    const { idToken } = req.body
-    if (!idToken) return error(res, "Se requiere idToken", 400)
-
-    const { user, token } = await userUseCases.googleLogin(idToken)
-    return success(res, { user, token })
-  } catch (e) {
-    return error(res, e.message, 400)
-  }
-}
