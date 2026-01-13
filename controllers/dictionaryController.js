@@ -3,7 +3,11 @@ const { success, error } = require("../utils/responseHandler")
 
 exports.addWord = async (req, res) => {
     try {
-        const word = await dictionaryUseCases.addWord(req.body)
+        const data = req.body
+        if (req.file) {
+            data.image = req.file.path
+        }
+        const word = await dictionaryUseCases.addWord(data)
         return success(res, { word }, 201)
     } catch (e) {
         return error(res, e.message, 400)
@@ -12,7 +16,7 @@ exports.addWord = async (req, res) => {
 
 exports.listWords = async (req, res) => {
     try {
-        const { search } = req.query 
+        const { search } = req.query
         const words = search
             ? await dictionaryUseCases.searchWords(search)
             : await dictionaryUseCases.getAllWords()
@@ -26,6 +30,9 @@ exports.updateWord = async (req, res) => {
     try {
         const { id } = req.params
         const data = req.body
+        if (req.file) {
+            data.image = req.file.path
+        }
         await dictionaryUseCases.updateWord(id, data)
         return success(res, { message: "Palabra actualizada" })
     } catch (e) {

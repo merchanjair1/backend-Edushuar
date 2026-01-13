@@ -33,3 +33,16 @@ exports.googleLogin = async (req, res) => {
         return error(res, e.message, 400)
     }
 }
+
+exports.googleRegister = async (req, res) => {
+    try {
+        const { idToken } = req.body
+        if (!idToken) return error(res, "Se requiere idToken", 400)
+
+        // googleLogin useCase handles creation if user doesn't exist
+        const { user, token } = await authUseCases.googleRegister(idToken)
+        return success(res, { user, token }, 201)
+    } catch (e) {
+        return error(res, e.message, 400)
+    }
+}

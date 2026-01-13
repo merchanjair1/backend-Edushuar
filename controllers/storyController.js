@@ -3,7 +3,11 @@ const { success, error } = require("../utils/responseHandler")
 
 exports.createStory = async (req, res) => {
     try {
-        const story = await storyUseCases.createStory(req.body)
+        const data = req.body
+        if (req.file) {
+            data.coverImage = req.file.path
+        }
+        const story = await storyUseCases.createStory(data)
         return success(res, { story }, 201)
     } catch (e) {
         return error(res, e.message, 400)
@@ -34,6 +38,9 @@ exports.updateStory = async (req, res) => {
     try {
         const { id } = req.params
         const data = req.body
+        if (req.file) {
+            data.coverImage = req.file.path
+        }
         await storyUseCases.updateStory(id, data)
         return success(res, { message: "Cuento actualizado" })
     } catch (e) {

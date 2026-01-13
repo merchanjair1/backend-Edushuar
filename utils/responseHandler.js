@@ -1,13 +1,14 @@
 exports.success = (res, data = {}, status = 200) => {
   return res.status(status).json({
-    ok: true,
+    code: "COD_OK",
     data
   })
 }
 
-exports.error = (res, message = "Algo salió mal", status = 500) => {
+exports.error = (res, message = "Algo salió mal", status = 500, errorObj = null) => {
   return res.status(status).json({
-    ok: false,
-    error: message
+    code: "COD_ERROR",
+    message,
+    error: errorObj || message
   })
 }

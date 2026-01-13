@@ -4,22 +4,26 @@ const dictionaryController = require("../controllers/dictionaryController")
 const authController = require("../controllers/authController")
 const lessonController = require("../controllers/lessonController")
 const storyController = require("../controllers/storyController")
+const upload = require("../utils/uploadHandler")
+const { validate } = require("../utils/validatorWrapper")
 
 // Auth Routes
-router.post("/login", authController.login)
-router.post("/registre", authController.register)
-router.post("/google-login", authController.googleLogin)
+router.post("/login", validate(["email", "password"]), authController.login)
+router.post("/registre", validate(["email", "password", "firstName", "lastName"]), authController.register)
+router.post("/google-login", validate(["idToken"]), authController.googleLogin)
+router.post("/google-register", validate(["idToken"]), authController.googleRegister)
 
 // User Routes
 router.post("/list", userController.listUsers)
 router.post("/get", userController.getUser)
-router.post("/update", userController.updateUser)
+router.post("/update", upload.single("photoProfile"), userController.updateUser)
+router.post("/create", upload.single("photoProfile"), validate(["email", "password", "firstName", "lastName"]), userController.createUser)
 router.post("/delete", userController.deleteUser)
 
 // Dictionary Routes
 router.get("/dictionary", dictionaryController.listWords) // Supports ?search=term
-router.post("/dictionary", dictionaryController.addWord)
-router.put("/dictionary/:id", dictionaryController.updateWord)
+router.post("/dictionary", upload.single("image"), dictionaryController.addWord)
+router.put("/dictionary/:id", upload.single("image"), dictionaryController.updateWord)
 router.delete("/dictionary/:id", dictionaryController.deleteWord)
 
 // Lesson Routes
@@ -32,8 +36,8 @@ router.delete("/lessons/:id", lessonController.deleteLesson)
 // Story Routes
 router.get("/stories", storyController.listStories)
 router.get("/stories/:id", storyController.getStory)
-router.post("/stories", storyController.createStory)
-router.put("/stories/:id", storyController.updateStory)
+router.post("/stories", upload.single("coverImage"), storyController.createStory)
+router.put("/stories/:id", upload.single("coverImage"), storyController.updateStory)
 router.delete("/stories/:id", storyController.deleteStory)
 
 module.exports = router

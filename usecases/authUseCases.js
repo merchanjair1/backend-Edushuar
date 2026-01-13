@@ -87,3 +87,10 @@ exports.googleLogin = async (idToken) => {
 
     return { user: { ...userProfile, email: googleData.email }, token }
 }
+
+exports.googleRegister = async (idToken) => {
+    // In Google Sign In, register and login are often the same flow (Upsert).
+    // However, to keep strict architecture, we expose this method.
+    // Logic is identical: Verify Token -> Create if not exists -> Return Token.
+    return await this.googleLogin(idToken)
+}
