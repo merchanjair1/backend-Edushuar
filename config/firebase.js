@@ -2,13 +2,22 @@ const admin = require("firebase-admin")
 const path = require("path")
 require("dotenv").config()
 
-const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS
+const {
+  FIREBASE_PROJECT_ID,
+  FIREBASE_CLIENT_EMAIL,
+  FIREBASE_PRIVATE_KEY
+} = process.env
 
-if (!serviceAccountPath) {
-  throw new Error("Falta GOOGLE_APPLICATION_CREDENTIALS en el .env")
+if (!FIREBASE_PROJECT_ID || !FIREBASE_CLIENT_EMAIL || !FIREBASE_PRIVATE_KEY) {
+  throw new Error("Faltan variables de entorno de Firebase (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY)")
 }
 
-const serviceAccount = require(path.resolve(serviceAccountPath))
+const serviceAccount = {
+  projectId: FIREBASE_PROJECT_ID,
+  clientEmail: FIREBASE_CLIENT_EMAIL,
+  // Replace escaped newlines if present (common issue in deployments)
+  privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
