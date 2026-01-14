@@ -6,8 +6,17 @@ exports.createStory = async ({ title, author, contentShuar, contentSpanish, cove
     return await StoryRepository.save(story)
 }
 
-exports.getAllStories = async () => {
-    return await StoryRepository.findAll()
+exports.getAllStories = async (page = 1, limit = 10) => {
+    const { stories, total } = await StoryRepository.findAll(page, limit)
+    return {
+        items: stories,
+        pagination: {
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(total / limit)
+        }
+    }
 }
 
 exports.getStoryById = async (id) => {

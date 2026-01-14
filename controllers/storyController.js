@@ -16,8 +16,11 @@ exports.createStory = async (req, res) => {
 
 exports.listStories = async (req, res) => {
     try {
-        const stories = await storyUseCases.getAllStories()
-        return success(res, { stories })
+        const page = parseInt(req.body.page) || 1
+        const limit = parseInt(req.body.limit) || 10
+
+        const result = await storyUseCases.getAllStories(page, limit)
+        return success(res, result)
     } catch (e) {
         return error(res, e.message)
     }
@@ -25,7 +28,7 @@ exports.listStories = async (req, res) => {
 
 exports.getStory = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.body
         const story = await storyUseCases.getStoryById(id)
         if (!story) return error(res, "Cuento no encontrado", 404)
         return success(res, { story })
@@ -36,8 +39,8 @@ exports.getStory = async (req, res) => {
 
 exports.updateStory = async (req, res) => {
     try {
-        const { id } = req.params
-        const data = req.body
+        const { id, ...bodyData } = req.body
+        const data = bodyData
         if (req.file) {
             data.coverImage = req.file.path
         }
@@ -50,7 +53,7 @@ exports.updateStory = async (req, res) => {
 
 exports.deleteStory = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.body
         await storyUseCases.deleteStory(id)
         return success(res, { message: "Cuento eliminado" })
     } catch (e) {

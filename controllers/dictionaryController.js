@@ -16,11 +16,14 @@ exports.addWord = async (req, res) => {
 
 exports.listWords = async (req, res) => {
     try {
-        const { search } = req.query
-        const words = search
-            ? await dictionaryUseCases.searchWords(search)
-            : await dictionaryUseCases.getAllWords()
-        return success(res, { words })
+        const { search, page, limit } = req.body
+        const p = parseInt(page) || 1
+        const l = parseInt(limit) || 10
+
+        const result = search
+            ? await dictionaryUseCases.searchWords(search, p, l)
+            : await dictionaryUseCases.getAllWords(p, l)
+        return success(res, result) // result contains { items, pagination }
     } catch (e) {
         return error(res, e.message)
     }
@@ -28,8 +31,8 @@ exports.listWords = async (req, res) => {
 
 exports.updateWord = async (req, res) => {
     try {
-        const { id } = req.params
-        const data = req.body
+        const { id, ...bodyData } = req.body
+        const data = bodyData
         if (req.file) {
             data.image = req.file.path
         }
@@ -42,7 +45,7 @@ exports.updateWord = async (req, res) => {
 
 exports.deleteWord = async (req, res) => {
     try {
-        const { id } = req.params
+        const { id } = req.body
         await dictionaryUseCases.deleteWord(id)
         return success(res, { message: "Palabra eliminada" })
     } catch (e) {

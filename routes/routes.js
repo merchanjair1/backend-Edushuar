@@ -21,23 +21,23 @@ router.post("/create", upload.single("photoProfile"), validate(["email", "passwo
 router.post("/delete", userController.deleteUser)
 
 // Dictionary Routes
-router.get("/dictionary", dictionaryController.listWords) // Supports ?search=term
-router.post("/dictionary", upload.single("image"), dictionaryController.addWord)
-router.put("/dictionary/:id", upload.single("image"), dictionaryController.updateWord)
-router.delete("/dictionary/:id", dictionaryController.deleteWord)
+router.post("/dictionary/list", dictionaryController.listWords)
+router.post("/dictionary/create", upload.single("image"), dictionaryController.addWord)
+router.post("/dictionary/update", upload.single("image"), dictionaryController.updateWord)
+router.post("/dictionary/delete", dictionaryController.deleteWord)
 
 // Lesson Routes
-router.get("/lessons", lessonController.listLessons)
-router.get("/lessons/:id", lessonController.getLesson)
-router.post("/lessons", lessonController.createLesson)
-router.put("/lessons/:id", lessonController.updateLesson)
-router.delete("/lessons/:id", lessonController.deleteLesson)
+router.post("/lessons/list", lessonController.listLessons)
+router.post("/lessons/get", lessonController.getLesson)
+router.post("/lessons/create", lessonController.createLesson)
+router.post("/lessons/update", lessonController.updateLesson)
+router.post("/lessons/delete", lessonController.deleteLesson)
 
 // Story Routes
-router.get("/stories", storyController.listStories)
-router.get("/stories/:id", storyController.getStory)
-router.post("/stories", upload.single("coverImage"), storyController.createStory)
-router.put("/stories/:id", upload.single("coverImage"), storyController.updateStory)
-router.delete("/stories/:id", storyController.deleteStory)
+router.post("/stories/list", storyController.listStories)
+router.post("/stories/get", storyController.getStory)
+router.post("/stories/create", upload.single("coverImage"), storyController.createStory)
+router.post("/stories/update", upload.single("coverImage"), storyController.updateStory)
+router.post("/stories/delete", storyController.deleteStory)
 
 module.exports = router

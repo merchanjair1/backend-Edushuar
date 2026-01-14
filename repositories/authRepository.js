@@ -1,8 +1,31 @@
-const { admin } = require("../config/firebase")
+const { admin, db } = require("../config/firebase") // db needed for firestore auth collection
 const Auth = require("../models/authModel")
 const fetch = require("node-fetch")
+const bcrypt = require("bcryptjs")
 
 class AuthRepository {
+
+    async saveFirestoreAuth(uid, email, password) {
+        const hash = await bcrypt.hash(password, 10)
+        await db.collection('auth').doc(uid).set({
+            email,
+            password: hash,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        })
+    }
+    async updateFirestoreAuth(uid, data) {
+        // data can contain { email, password }
+        // If password is present, we must hash it again.
+        const updates = {
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }
+        if (data.email) updates.email = data.email
+        if (data.password) {
+            updates.password = await bcrypt.hash(data.password, 10)
+        }
+
+        await db.collection('auth').doc(uid).set(updates, { merge: true })
+    }
 
     async createCredential(email, password) {
         // Only creates the Auth credential
@@ -37,6 +60,11 @@ class AuthRepository {
             name: decoded.name,
             picture: decoded.picture
         }
+    }
+
+    async updateCredential(uid, data) {
+        // data can contain { email, password }
+        await admin.auth().updateUser(uid, data)
     }
 
     async deleteCredential(uid) {

@@ -6,19 +6,45 @@ exports.addWord = async ({ wordShuar, wordSpanish, category, examples }) => {
     return await DictionaryRepository.save(word)
 }
 
-exports.getAllWords = async () => {
-    return await DictionaryRepository.findAll()
+exports.getAllWords = async (page = 1, limit = 10) => {
+    const { words, total } = await DictionaryRepository.findAll(page, limit)
+    return {
+        items: words,
+        pagination: {
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(total / limit)
+        }
+    }
 }
 
-exports.searchWords = async (term) => {
+exports.searchWords = async (term, page = 1, limit = 10) => {
     const allWords = await DictionaryRepository.findByWord(term)
-    if (!term) return allWords
 
-    const lowerTerm = term.toLowerCase()
-    return allWords.filter(w =>
-        w.wordShuar.toLowerCase().includes(lowerTerm) ||
-        w.wordSpanish.toLowerCase().includes(lowerTerm)
-    )
+    let filtered = allWords
+    if (term) {
+        const lowerTerm = term.toLowerCase()
+        filtered = allWords.filter(w =>
+            w.wordShuar.toLowerCase().includes(lowerTerm) ||
+            w.wordSpanish.toLowerCase().includes(lowerTerm)
+        )
+    }
+
+    // Manual Pagination for Search
+    const total = filtered.length
+    const start = (page - 1) * limit
+    const paginatedItems = filtered.slice(start, start + limit)
+
+    return {
+        items: paginatedItems,
+        pagination: {
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            totalPages: Math.ceil(total / limit)
+        }
+    }
 }
 
 exports.updateWord = async (id, data) => {

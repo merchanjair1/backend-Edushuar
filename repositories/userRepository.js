@@ -6,6 +6,7 @@ class UserRepository {
   async saveProfile(userEntity) {
     const firestoreData = {
       authId: userEntity.authId,
+      email: userEntity.email,
       firstName: userEntity.firstName,
       lastName: userEntity.lastName,
       role: userEntity.role,
@@ -31,9 +32,21 @@ class UserRepository {
     })
   }
 
-  async findAll() {
-    const snap = await db.collection("users").get()
-    return snap.docs.map(d => {
+  async findAll(page = 1, limit = 10) {
+    const offset = (page - 1) * limit
+
+    // Get Total Count
+    const snapshot = await db.collection("users").count().get()
+    const total = snapshot.data().count
+
+    // Get Paginated Docs
+    const docsSnap = await db.collection("users")
+      .orderBy('createdAt', 'desc') // Best practice for pagination
+      .offset(offset)
+      .limit(limit)
+      .get()
+
+    const users = docsSnap.docs.map(d => {
       const data = d.data()
       return new User({
         id: d.id,
@@ -41,6 +54,8 @@ class UserRepository {
         birthdate: data.birthdate ? data.birthdate.toDate() : null
       })
     })
+
+    return { users, total }
   }
 
   async update(id, data) {

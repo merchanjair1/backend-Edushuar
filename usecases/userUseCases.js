@@ -23,6 +23,8 @@ exports.createUser = async (userData) => {
   if (userData.email && userData.password) {
     const authCredential = await AuthRepository.createCredential(userData.email, userData.password)
     uid = authCredential.uid
+    // Save explicit auth record
+    await AuthRepository.saveFirestoreAuth(uid, userData.email, userData.password)
   } else {
     // If no auth, we shouldn't really be creating a user in this system structure, 
     // but if needed we could generate a random ID. 
@@ -50,9 +52,9 @@ exports.createUser = async (userData) => {
   const newUser = new User({
     id: uid,
     authId: uid,
+    email: userData.email, // Now storing email in Firestore
     firstName: userData.firstName,
     lastName: userData.lastName,
-    // email is not in User model usually but we pass it effectively via authId link
     role: finalRole,
     photoProfile: userData.photoProfile || null,
     birthdate: parsedDate,
@@ -64,8 +66,17 @@ exports.createUser = async (userData) => {
   return await UserRepository.saveProfile(newUser)
 }
 
-exports.getAllUsers = async () => {
-  return await UserRepository.findAll()
+exports.getAllUsers = async (page = 1, limit = 10) => {
+  const { users, total } = await UserRepository.findAll(page, limit)
+  return {
+    items: users,
+    pagination: {
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / limit)
+    }
+  }
 }
 
 exports.getUserById = async (id) => {
@@ -73,7 +84,46 @@ exports.getUserById = async (id) => {
 }
 
 exports.updateUser = async (id, data) => {
-  return await UserRepository.update(id, data)
+  // Separate Auth fields (password, email) from Store fields
+  // We keep 'email' in StoreData for listing purposes, but 'password' MUST NOT go to Firestore.
+  const { password, ...storeData } = data
+
+  // Handle Role Normalization if 'role' is present in data
+  // (Verify if role is empty string, reset to student)
+  if (data.hasOwnProperty('role')) {
+    let roleInput = (data.role || "").toLowerCase().trim()
+    if (roleInput === "") {
+      storeData.role = "student"
+    } else if (roleInput === "administrador" || roleInput === "admin") {
+      storeData.role = "admin"
+    } else if (roleInput === "estudiante" || roleInput === "student") {
+      storeData.role = "student"
+    }
+    // If invalid, we could throw error or ignore. 
+    // For now, let's stick to the request: "empty -> student"
+  }
+
+  // 1. If email or password provided, update Auth Credential
+  if (data.email || password) {
+    const authUpdates = {}
+    if (data.email) authUpdates.email = data.email
+    if (password) authUpdates.password = password
+
+    await AuthRepository.updateCredential(id, authUpdates)
+
+    // Also update explicit 'auth' collection in Firestore
+    if (data.email || password) {
+      // Pass raw password to be hashed inside repo, or email
+      const firestoreAuthUpdates = {}
+      if (data.email) firestoreAuthUpdates.email = data.email
+      if (password) firestoreAuthUpdates.password = password
+
+      await AuthRepository.updateFirestoreAuth(id, firestoreAuthUpdates)
+    }
+  }
+
+  // 2. Update Firestore Profile (without password)
+  return await UserRepository.update(id, storeData)
 }
 
 exports.deleteUser = async (id) => {

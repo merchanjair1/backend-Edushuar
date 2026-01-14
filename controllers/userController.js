@@ -36,8 +36,12 @@ exports.createUser = async (req, res) => {
 
 exports.listUsers = async (req, res) => {
   try {
-    const users = await userUseCases.getAllUsers()
-    return success(res, { users })
+    // Check query params first, then body (since it's a POST)
+    const page = parseInt(req.query.page || req.body.page) || 1
+    const limit = parseInt(req.query.limit || req.body.limit) || 10
+
+    const result = await userUseCases.getAllUsers(page, limit)
+    return success(res, result) // result contains { items, pagination }
   } catch (e) {
     return error(res, e.message)
   }
@@ -56,19 +60,36 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { id, data } = req.body
+    console.log("DEBUG: Update Body:", JSON.stringify(req.body, null, 2))
 
-    // If file is uploaded, update photoProfile
-    if (req.file) {
-      // Handle case where data might be a string if sent as form-data
-      const updateData = typeof data === 'string' ? JSON.parse(data) : (data || {})
-      updateData.photoProfile = req.file.path
-      await userUseCases.updateUser(id, updateData)
-    } else {
-      await userUseCases.updateUser(id, data)
+    // Extract ID and separate potentially nested 'data' from the rest of the body
+    const { id, data, ...restBody } = req.body
+
+    if (!id) return error(res, "Se requiere el ID del usuario para actualizar", 400)
+
+    // Determine the update payload
+    let updateData = {}
+
+    // 1. If 'data' is provided (JSON string or object) -> Use it (Legacy/Strict mode)
+    if (data) {
+      updateData = typeof data === 'string' ? JSON.parse(data) : data
+    }
+    // 2. Otherwise, use the flattened fields from restBody (Standard Form-Data)
+    else {
+      updateData = { ...restBody }
     }
 
-    return success(res, { message: "Usuario actualizado" })
+    // If file is uploaded, override photoProfile
+    if (req.file) {
+      updateData.photoProfile = req.file.path
+    }
+
+    await userUseCases.updateUser(id, updateData)
+
+    // Fetch updated user to return
+    const updatedUser = await userUseCases.getUserById(id)
+
+    return success(res, { message: "Usuario actualizado", user: updatedUser })
   } catch (e) {
     return error(res, e.message, 400)
   }
