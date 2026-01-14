@@ -33,9 +33,6 @@ app.use((err, req, res, next) => {
   return error(res, err.message || "Error interno", 500)
 })
 
-// Render-compatible listen
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`API running on port ${PORT}`)
-})
+// app.listen moved to bin/www
 
 module.exports = app
