@@ -47,6 +47,10 @@ exports.searchWords = async (term, page = 1, limit = 10) => {
     }
 }
 
+exports.getWordById = async (id) => {
+    return await DictionaryRepository.findById(id)
+}
+
 exports.updateWord = async (id, data) => {
     return await DictionaryRepository.update(id, data)
 }

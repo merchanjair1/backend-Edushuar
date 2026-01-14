@@ -4,10 +4,10 @@ class Lesson {
         this.title = title
         this.level = level
         this.description = description
-        this.duration = duration    
+        this.duration = duration
         this.totalPoints = totalPoints
         this.content = content
-        this.exercises = exercises 
+        this.exercises = exercises
     }
 }
 

@@ -37,7 +37,8 @@ exports.updateLesson = async (req, res) => {
     try {
         const { id, ...data } = req.body
         await lessonUseCases.updateLesson(id, data)
-        return success(res, { message: "Lección actualizada" })
+        const updatedLesson = await lessonUseCases.getLessonById(id)
+        return success(res, { message: "Lección actualizada", lesson: updatedLesson })
     } catch (e) {
         return error(res, e.message)
     }

@@ -45,7 +45,8 @@ exports.updateStory = async (req, res) => {
             data.coverImage = req.file.path
         }
         await storyUseCases.updateStory(id, data)
-        return success(res, { message: "Cuento actualizado" })
+        const updatedStory = await storyUseCases.getStoryById(id)
+        return success(res, { message: "Cuento actualizado", story: updatedStory })
     } catch (e) {
         return error(res, e.message)
     }

@@ -4,6 +4,7 @@ const dictionaryController = require("../controllers/dictionaryController")
 const authController = require("../controllers/authController")
 const lessonController = require("../controllers/lessonController")
 const storyController = require("../controllers/storyController")
+const progressController = require("../controllers/progressController")
 const upload = require("../utils/uploadHandler")
 const { validate } = require("../utils/validatorWrapper")
 
@@ -14,11 +15,11 @@ router.post("/google-login", validate(["idToken"]), authController.googleLogin)
 router.post("/google-register", validate(["idToken"]), authController.googleRegister)
 
 // User Routes
-router.post("/list", userController.listUsers)
-router.post("/get", userController.getUser)
-router.post("/update", upload.single("photoProfile"), userController.updateUser)
-router.post("/create", upload.single("photoProfile"), validate(["email", "password", "firstName", "lastName"]), userController.createUser)
-router.post("/delete", userController.deleteUser)
+router.post("/users/list", userController.listUsers)
+router.post("/users/get", userController.getUser)
+router.post("/users/update", upload.single("photoProfile"), userController.updateUser)
+router.post("/users/create", upload.single("photoProfile"), validate(["email", "password", "firstName", "lastName"]), userController.createUser)
+router.post("/users/delete", userController.deleteUser)
 
 // Dictionary Routes
 router.post("/dictionary/list", dictionaryController.listWords)
@@ -39,5 +40,10 @@ router.post("/stories/get", storyController.getStory)
 router.post("/stories/create", upload.single("coverImage"), storyController.createStory)
 router.post("/stories/update", upload.single("coverImage"), storyController.updateStory)
 router.post("/stories/delete", storyController.deleteStory)
+
+// Progress Routes
+router.post("/progress/update", progressController.updateProgress)
+router.post("/progress/list", progressController.listProgress)
+router.post("/progress/get", progressController.getProgress)
 
 module.exports = router

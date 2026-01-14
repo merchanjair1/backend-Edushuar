@@ -12,8 +12,8 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-const userRoutes = require("./routes/routes")
-app.use("/api/users", userRoutes)
+const apiRoutes = require("./routes/routes")
+app.use("/api", apiRoutes)
 
 app.get("/", (req, res) => {
   return success(res, { api: "online" })

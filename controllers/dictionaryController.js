@@ -37,7 +37,8 @@ exports.updateWord = async (req, res) => {
             data.image = req.file.path
         }
         await dictionaryUseCases.updateWord(id, data)
-        return success(res, { message: "Palabra actualizada" })
+        const updatedWord = await dictionaryUseCases.getWordById(id) // This needs to be available in usecase
+        return success(res, { message: "Palabra actualizada", word: updatedWord })
     } catch (e) {
         return error(res, e.message)
     }
