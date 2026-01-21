@@ -33,6 +33,5 @@ app.use((err, req, res, next) => {
   return error(res, err.message || "Error interno", 500)
 })
 
-// app.listen moved to bin/www
 
 module.exports = app
