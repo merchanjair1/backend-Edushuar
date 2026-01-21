@@ -98,14 +98,18 @@ exports.googleRegister = async (idToken) => {
 exports.requestPasswordReset = async (email) => {
     if (!email) throw new Error("El email es requerido")
 
-    // Verify that the user exists before sending reset email
     try {
         await AuthRepository.sendPasswordResetEmail(email)
-        return { success: true, message: "Si el correo existe, recibirás un enlace de restablecimiento" }
+        return { success: true, message: "Correo de restablecimiento enviado exitosamente" }
     } catch (error) {
-        // For security reasons, we don't reveal if the email exists or not
-        // Return success message regardless
         console.error("Error sending password reset:", error.message)
-        return { success: true, message: "Si el correo existe, recibirás un enlace de restablecimiento" }
+
+        // Check if error is because user doesn't exist
+        if (error.message.includes("EMAIL_NOT_FOUND") || error.message.includes("USER_NOT_FOUND")) {
+            throw new Error("El correo electrónico no está registrado")
+        }
+
+        // Re-throw other errors
+        throw new Error("Error al enviar el correo de restablecimiento: " + error.message)
     }
 }
