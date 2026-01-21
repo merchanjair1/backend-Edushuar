@@ -72,10 +72,26 @@ class AuthRepository {
     }
 
     async sendPasswordResetEmail(email) {
-        // Generate password reset link using Firebase Admin SDK
-        const link = await admin.auth().generatePasswordResetLink(email)
-        // Note: In production, you might want to send a custom email
-        // For now, Firebase will send the default reset email
+        // Use Firebase REST API to send password reset email
+        // This actually sends the email, unlike generatePasswordResetLink
+        const apiKey = process.env.FIREBASE_API_KEY
+        const url = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${apiKey}`
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                requestType: "PASSWORD_RESET",
+                email: email
+            })
+        })
+
+        const data = await response.json()
+
+        if (data.error) {
+            throw new Error(data.error.message)
+        }
+
         return { success: true, message: "Correo de restablecimiento enviado" }
     }
 }
