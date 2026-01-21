@@ -13,6 +13,7 @@ router.post("/login", validate(["email", "password"]), authController.login)
 router.post("/registre", validate(["email", "password", "firstName", "lastName"]), authController.register)
 router.post("/google-login", validate(["idToken"]), authController.googleLogin)
 router.post("/google-register", validate(["idToken"]), authController.googleRegister)
+router.post("/reset-password", validate(["email"]), authController.requestPasswordReset)
 
 // User Routes
 router.post("/users/list", userController.listUsers)

@@ -46,3 +46,15 @@ exports.googleRegister = async (req, res) => {
         return error(res, e.message, 400)
     }
 }
+
+exports.requestPasswordReset = async (req, res) => {
+    try {
+        const { email } = req.body
+        if (!email) return error(res, "El email es requerido", 400)
+
+        const result = await authUseCases.requestPasswordReset(email)
+        return success(res, result)
+    } catch (e) {
+        return error(res, e.message, 400)
+    }
+}
