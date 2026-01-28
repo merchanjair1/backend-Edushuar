@@ -1,8 +1,8 @@
 const LessonRepository = require("../repositories/lessonRepository")
 const Lesson = require("../models/lessonModel")
 
-exports.createLesson = async ({ title, level, description, duration, totalPoints, content, exercises }) => {
-    const lesson = new Lesson({ title, level, description, duration, totalPoints, content, exercises })
+exports.createLesson = async (data) => {
+    const lesson = new Lesson(data)
     return await LessonRepository.save(lesson)
 }
 
