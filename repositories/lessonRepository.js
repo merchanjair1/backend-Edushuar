@@ -10,10 +10,25 @@ class LessonRepository {
             duration: lesson.duration || 0,
             totalPoints: lesson.totalPoints || 0,
             content: lesson.content || {},
-            exercises: lesson.exercises || []
+            exercises: lesson.exercises || [],
+            image: lesson.image || null,
+            imageDescription: lesson.imageDescription || "",
+            order: lesson.order || 0
         })
         lesson.id = docRef.id
         return lesson
+    }
+
+    async findNextLesson(currentOrder) {
+        const snap = await db.collection("lessons")
+            .where("order", ">", currentOrder)
+            .orderBy("order", "asc")
+            .limit(1)
+            .get()
+
+        if (snap.empty) return null
+        const doc = snap.docs[0]
+        return new Lesson({ id: doc.id, ...doc.data() })
     }
 
     async findAll(page = 1, limit = 10) {

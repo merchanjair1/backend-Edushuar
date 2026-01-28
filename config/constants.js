@@ -1,7 +1,9 @@
 const PROGRESS_STATUS = {
     PENDING: 'pending',
     COMPLETED: 'completed',
-    INCOMPLETE: 'incomplete'
+    INCOMPLETE: 'incomplete',
+    LOCKED: 'locked',
+    UNLOCKED: 'unlocked'
 }
 
 module.exports = {

@@ -10,6 +10,7 @@ class ProgressRepository {
             lessonId: progress.lessonId,
             status: progress.status,
             score: progress.score,
+            percentage: progress.percentage,
             updatedAt: admin.firestore.FieldValue.serverTimestamp()
         }
 

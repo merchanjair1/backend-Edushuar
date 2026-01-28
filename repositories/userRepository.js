@@ -11,6 +11,7 @@ class UserRepository {
       lastName: userEntity.lastName,
       role: userEntity.role,
       photoProfile: userEntity.photoProfile,
+      photoDescription: userEntity.photoDescription || "",
       birthdate: userEntity.birthdate ? admin.firestore.Timestamp.fromDate(new Date(userEntity.birthdate)) : null,
       status: userEntity.status,
       createdAt: admin.firestore.FieldValue.serverTimestamp()

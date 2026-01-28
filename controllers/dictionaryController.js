@@ -7,7 +7,14 @@ exports.addWord = async (req, res) => {
         if (req.file) {
             data.image = req.file.path
         }
-        const word = await dictionaryUseCases.addWord(data)
+
+        let wordData = { ...data }
+        if (data.data && typeof data.data === 'string') {
+            wordData = { ...JSON.parse(data.data), ...wordData }
+            delete wordData.data
+        }
+
+        const word = await dictionaryUseCases.addWord(wordData)
         return success(res, { word }, 201)
     } catch (e) {
         return error(res, e.message, 400)
@@ -31,13 +38,22 @@ exports.listWords = async (req, res) => {
 
 exports.updateWord = async (req, res) => {
     try {
-        const { id, ...bodyData } = req.body
-        const data = bodyData
-        if (req.file) {
-            data.image = req.file.path
+        const { id, data, ...restBody } = req.body
+
+        // Handle multipart/form-data with potential 'data' JSON string
+        let updateData = {}
+        if (data) {
+            updateData = typeof data === 'string' ? JSON.parse(data) : data
+        } else {
+            updateData = { ...restBody }
         }
-        await dictionaryUseCases.updateWord(id, data)
-        const updatedWord = await dictionaryUseCases.getWordById(id) // This needs to be available in usecase
+
+        if (req.file) {
+            updateData.image = req.file.path
+        }
+
+        await dictionaryUseCases.updateWord(id, updateData)
+        const updatedWord = await dictionaryUseCases.getWordById(id)
         return success(res, { message: "Palabra actualizada", word: updatedWord })
     } catch (e) {
         return error(res, e.message)

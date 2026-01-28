@@ -7,7 +7,9 @@ class DictionaryRepository {
             wordShuar: word.wordShuar,
             wordSpanish: word.wordSpanish,
             category: word.category,
-            examples: word.examples
+            examples: word.examples,
+            image: word.image || null,
+            imageDescription: word.imageDescription || ""
         })
         word.id = docRef.id
         return word

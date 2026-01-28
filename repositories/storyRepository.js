@@ -10,7 +10,8 @@ class StoryRepository {
             author: story.author || null,
             contentShuar: story.contentShuar || null,
             contentSpanish: story.contentSpanish || null,
-            coverImage: story.coverImage || null
+            coverImage: story.coverImage || null,
+            imageDescription: story.imageDescription || ""
         }
         // Remove nulls if you prefer cleaning, or keep nulls. Firestore allows null.
         // But it throws on undefined.

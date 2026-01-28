@@ -31,8 +31,8 @@ router.post("/dictionary/delete", dictionaryController.deleteWord)
 // Lesson Routes
 router.post("/lessons/list", lessonController.listLessons)
 router.post("/lessons/get", lessonController.getLesson)
-router.post("/lessons/create", lessonController.createLesson)
-router.post("/lessons/update", lessonController.updateLesson)
+router.post("/lessons/create", upload.single("image"), lessonController.createLesson)
+router.post("/lessons/update", upload.single("image"), lessonController.updateLesson)
 router.post("/lessons/delete", lessonController.deleteLesson)
 
 // Story Routes
@@ -46,5 +46,6 @@ router.post("/stories/delete", storyController.deleteStory)
 router.post("/progress/update", progressController.updateProgress)
 router.post("/progress/list", progressController.listProgress)
 router.post("/progress/get", progressController.getProgress)
+router.post("/progress/general", progressController.getGeneralProgress)
 
 module.exports = router

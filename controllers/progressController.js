@@ -3,13 +3,25 @@ const { success, error } = require("../utils/responseHandler")
 
 exports.updateProgress = async (req, res) => {
     try {
-        const { userId, lessonId, status, score } = req.body
+        const { userId, lessonId, status, score, percentage } = req.body
         if (!userId || !lessonId) return error(res, "Faltan datos (userId, lessonId)", 400)
 
-        const progress = await progressUseCases.updateProgress({ userId, lessonId, status, score })
+        const progress = await progressUseCases.updateProgress({ userId, lessonId, status, score, percentage })
         return success(res, { message: "Progreso actualizado", progress })
     } catch (e) {
         return error(res, e.message, 400)
+    }
+}
+
+exports.getGeneralProgress = async (req, res) => {
+    try {
+        const { userId } = req.body
+        if (!userId) return error(res, "Faltan datos (userId)", 400)
+
+        const result = await progressUseCases.getGeneralProgress(userId)
+        return success(res, result)
+    } catch (e) {
+        return error(res, e.message)
     }
 }
 

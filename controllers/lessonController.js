@@ -3,7 +3,19 @@ const { success, error } = require("../utils/responseHandler")
 
 exports.createLesson = async (req, res) => {
     try {
-        const lesson = await lessonUseCases.createLesson(req.body)
+        const data = req.body
+
+        if (req.file) {
+            data.image = req.file.path
+        }
+
+        let lessonData = { ...data }
+        if (data.data && typeof data.data === 'string') {
+            lessonData = { ...JSON.parse(data.data), ...lessonData }
+            delete lessonData.data
+        }
+
+        const lesson = await lessonUseCases.createLesson(lessonData)
         return success(res, { lesson }, 201)
     } catch (e) {
         return error(res, e.message, 400)
@@ -35,8 +47,21 @@ exports.getLesson = async (req, res) => {
 
 exports.updateLesson = async (req, res) => {
     try {
-        const { id, ...data } = req.body
-        await lessonUseCases.updateLesson(id, data)
+        const { id, data, ...restBody } = req.body
+
+        // Handle multipart/form-data with potential 'data' JSON string
+        let updateData = {}
+        if (data) {
+            updateData = typeof data === 'string' ? JSON.parse(data) : data
+        } else {
+            updateData = { ...restBody }
+        }
+
+        if (req.file) {
+            updateData.image = req.file.path
+        }
+
+        await lessonUseCases.updateLesson(id, updateData)
         const updatedLesson = await lessonUseCases.getLessonById(id)
         return success(res, { message: "Lección actualizada", lesson: updatedLesson })
     } catch (e) {
