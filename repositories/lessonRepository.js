@@ -3,6 +3,14 @@ const Lesson = require("../models/lessonModel")
 
 class LessonRepository {
     async save(lesson) {
+        // Always calculate order automatically based on the last one
+        const maxOrderSnap = await db.collection("lessons").orderBy("order", "desc").limit(1).get()
+        if (!maxOrderSnap.empty) {
+            lesson.order = (maxOrderSnap.docs[0].data().order || 0) + 1
+        } else {
+            lesson.order = 1
+        }
+
         const docRef = await db.collection("lessons").add({
             title: lesson.title,
             level: lesson.level,
@@ -13,7 +21,7 @@ class LessonRepository {
             exercises: lesson.exercises || [],
             image: lesson.image || null,
             imageDescription: lesson.imageDescription || "",
-            order: lesson.order || 0
+            order: lesson.order
         })
         lesson.id = docRef.id
         return lesson
