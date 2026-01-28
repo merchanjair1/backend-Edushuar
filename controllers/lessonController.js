@@ -3,17 +3,33 @@ const { success, error } = require("../utils/responseHandler")
 
 exports.createLesson = async (req, res) => {
     try {
+        console.log("Headers:", req.headers['content-type'])
+        console.log("Create Lesson Body:", req.body)
         const data = req.body
 
+        let lessonData = { ...req.body }
+
+        // Case 1: Multipart/Form-Data (Image is a file)
         if (req.file) {
-            data.image = req.file.path
+            lessonData.image = req.file.path
+            // In multipart, complex fields might imply 'data' string parsing
+            if (req.body.data && typeof req.body.data === 'string') {
+                try {
+                    const parsedData = JSON.parse(req.body.data)
+                    lessonData = { ...lessonData, ...parsedData }
+                } catch (e) { console.error("Error parsing data field", e) }
+                delete lessonData.data
+            }
         }
 
-        let lessonData = { ...data }
-        if (data.data && typeof data.data === 'string') {
-            lessonData = { ...JSON.parse(data.data), ...lessonData }
-            delete lessonData.data
-        }
+        // Case 2: Raw JSON (Image is a URL string, content/exercises are objects)
+        // No special handling needed for image/content if they are already in req.body
+        // verify content/exercises are objects if they came as strings in JSON? unlikely if raw json.
+
+        // Ensure numeric fields are numbers
+        if (lessonData.order) lessonData.order = parseInt(lessonData.order)
+        if (lessonData.duration) lessonData.duration = parseInt(lessonData.duration)
+        if (lessonData.totalPoints) lessonData.totalPoints = parseInt(lessonData.totalPoints)
 
         const lesson = await lessonUseCases.createLesson(lessonData)
         return success(res, { lesson }, 201)
@@ -60,6 +76,11 @@ exports.updateLesson = async (req, res) => {
         if (req.file) {
             updateData.image = req.file.path
         }
+
+        // Ensure numeric fields are numbers
+        if (updateData.order) updateData.order = parseInt(updateData.order)
+        if (updateData.duration) updateData.duration = parseInt(updateData.duration)
+        if (updateData.totalPoints) updateData.totalPoints = parseInt(updateData.totalPoints)
 
         await lessonUseCases.updateLesson(id, updateData)
         const updatedLesson = await lessonUseCases.getLessonById(id)
