@@ -1,8 +1,8 @@
 const StoryRepository = require("../repositories/storyRepository")
 const Story = require("../models/storyModel")
 
-exports.createStory = async ({ title, author, contentShuar, contentSpanish, coverImage }) => {
-    const story = new Story({ title, author, contentShuar, contentSpanish, coverImage })
+exports.createStory = async ({ title_español, title_shuar, category, author, contentShuar, contentSpanish, coverImage }) => {
+    const story = new Story({ title_español, title_shuar, category, author, contentShuar, contentSpanish, coverImage })
     return await StoryRepository.save(story)
 }
 

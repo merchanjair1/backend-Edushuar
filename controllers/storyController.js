@@ -4,10 +4,18 @@ const { success, error } = require("../utils/responseHandler")
 exports.createStory = async (req, res) => {
     try {
         const data = req.body
+
         if (req.file) {
             data.coverImage = req.file.path
         }
-        const story = await storyUseCases.createStory(data)
+
+        let storyData = { ...data }
+        if (data.data && typeof data.data === 'string') {
+            storyData = { ...JSON.parse(data.data), ...storyData }
+            delete storyData.data
+        }
+
+        const story = await storyUseCases.createStory(storyData)
         return success(res, { story }, 201)
     } catch (e) {
         return error(res, e.message, 400)
@@ -39,12 +47,23 @@ exports.getStory = async (req, res) => {
 
 exports.updateStory = async (req, res) => {
     try {
-        const { id, ...bodyData } = req.body
-        const data = bodyData
-        if (req.file) {
-            data.coverImage = req.file.path
+        const { id, data, ...restBody } = req.body
+
+        if (!id) return error(res, "Se requiere el ID del cuento para actualizar", 400)
+
+        let updateData = {}
+
+        if (data) {
+            updateData = typeof data === 'string' ? JSON.parse(data) : data
+        } else {
+            updateData = { ...restBody }
         }
-        await storyUseCases.updateStory(id, data)
+
+        if (req.file) {
+            updateData.coverImage = req.file.path
+        }
+
+        await storyUseCases.updateStory(id, updateData)
         const updatedStory = await storyUseCases.getStoryById(id)
         return success(res, { message: "Cuento actualizado", story: updatedStory })
     } catch (e) {

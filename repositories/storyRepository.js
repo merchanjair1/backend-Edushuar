@@ -3,13 +3,20 @@ const Story = require("../models/storyModel")
 
 class StoryRepository {
     async save(story) {
-        const docRef = await db.collection("stories").add({
-            title: story.title,
-            author: story.author,
-            contentShuar: story.contentShuar,
-            contentSpanish: story.contentSpanish,
-            coverImage: story.coverImage
-        })
+        const storyData = {
+            title_español: story.title_español || null,
+            title_shuar: story.title_shuar || null,
+            category: story.category || null,
+            author: story.author || null,
+            contentShuar: story.contentShuar || null,
+            contentSpanish: story.contentSpanish || null,
+            coverImage: story.coverImage || null
+        }
+        // Remove nulls if you prefer cleaning, or keep nulls. Firestore allows null.
+        // But it throws on undefined.
+        // We will stick to null defaulting.
+
+        const docRef = await db.collection("stories").add(storyData)
         story.id = docRef.id
         return story
     }
@@ -31,7 +38,11 @@ class StoryRepository {
     }
 
     async update(id, data) {
-        await db.collection("stories").doc(id).update(data)
+        // Sanitize data to remove undefined or unexpected fields
+        const cleanData = JSON.parse(JSON.stringify(data)); // Simple hack to remove undefined
+        delete cleanData.title; // Explicitly remove title if it sneaks in
+
+        await db.collection("stories").doc(id).update(cleanData)
     }
 
     async delete(id) {
