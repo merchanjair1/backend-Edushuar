@@ -5,7 +5,7 @@ const authController = require("../controllers/authController")
 const lessonController = require("../controllers/lessonController")
 const storyController = require("../controllers/storyController")
 const progressController = require("../controllers/progressController")
-const upload = require("../utils/uploadHandler")
+// const upload = require("../utils/uploadHandler") // Removed as we use Base64 now
 const { validate } = require("../utils/validatorWrapper")
 
 // Auth Routes
@@ -18,28 +18,28 @@ router.post("/reset-password", validate(["email"]), authController.requestPasswo
 // User Routes
 router.post("/users/list", userController.listUsers)
 router.post("/users/get", userController.getUser)
-router.post("/users/update", upload.single("photoProfile"), userController.updateUser)
-router.post("/users/create", upload.single("photoProfile"), validate(["email", "password", "firstName", "lastName"]), userController.createUser)
+router.post("/users/update", userController.updateUser)
+router.post("/users/create", validate(["email", "password", "firstName", "lastName"]), userController.createUser)
 router.post("/users/delete", userController.deleteUser)
 
 // Dictionary Routes
 router.post("/dictionary/list", dictionaryController.listWords)
-router.post("/dictionary/create", upload.single("image"), dictionaryController.addWord)
-router.post("/dictionary/update", upload.single("image"), dictionaryController.updateWord)
+router.post("/dictionary/create", dictionaryController.addWord)
+router.post("/dictionary/update", dictionaryController.updateWord)
 router.post("/dictionary/delete", dictionaryController.deleteWord)
 
 // Lesson Routes
 router.post("/lessons/list", lessonController.listLessons)
 router.post("/lessons/get", lessonController.getLesson)
-router.post("/lessons/create", upload.single("image"), lessonController.createLesson)
-router.post("/lessons/update", upload.single("image"), lessonController.updateLesson)
+router.post("/lessons/create", lessonController.createLesson)
+router.post("/lessons/update", lessonController.updateLesson)
 router.post("/lessons/delete", lessonController.deleteLesson)
 
 // Story Routes
 router.post("/stories/list", storyController.listStories)
 router.post("/stories/get", storyController.getStory)
-router.post("/stories/create", upload.single("coverImage"), storyController.createStory)
-router.post("/stories/update", upload.single("coverImage"), storyController.updateStory)
+router.post("/stories/create", storyController.createStory)
+router.post("/stories/update", storyController.updateStory)
 router.post("/stories/delete", storyController.deleteStory)
 
 // Progress Routes

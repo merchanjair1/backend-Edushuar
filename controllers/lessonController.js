@@ -1,30 +1,16 @@
 const lessonUseCases = require("../usecases/lessonUseCases")
 const { success, error } = require("../utils/responseHandler")
+const { uploadBase64 } = require("../utils/uploadHandler")
 
 exports.createLesson = async (req, res) => {
     try {
-        console.log("Headers:", req.headers['content-type'])
         console.log("Create Lesson Body:", req.body)
-        const data = req.body
+        const lessonData = { ...req.body }
 
-        let lessonData = { ...req.body }
-
-        // Case 1: Multipart/Form-Data (Image is a file)
-        if (req.file) {
-            lessonData.image = req.file.path
-            // In multipart, complex fields might imply 'data' string parsing
-            if (req.body.data && typeof req.body.data === 'string') {
-                try {
-                    const parsedData = JSON.parse(req.body.data)
-                    lessonData = { ...lessonData, ...parsedData }
-                } catch (e) { console.error("Error parsing data field", e) }
-                delete lessonData.data
-            }
+        // Handle Base64 Image
+        if (lessonData.image) {
+            lessonData.image = await uploadBase64(lessonData.image)
         }
-
-        // Case 2: Raw JSON (Image is a URL string, content/exercises are objects)
-        // No special handling needed for image/content if they are already in req.body
-        // verify content/exercises are objects if they came as strings in JSON? unlikely if raw json.
 
         // Ensure numeric fields are numbers
         if (lessonData.order) lessonData.order = parseInt(lessonData.order)
@@ -63,18 +49,11 @@ exports.getLesson = async (req, res) => {
 
 exports.updateLesson = async (req, res) => {
     try {
-        const { id, data, ...restBody } = req.body
+        const { id, ...updateData } = req.body
 
-        // Handle multipart/form-data with potential 'data' JSON string
-        let updateData = {}
-        if (data) {
-            updateData = typeof data === 'string' ? JSON.parse(data) : data
-        } else {
-            updateData = { ...restBody }
-        }
-
-        if (req.file) {
-            updateData.image = req.file.path
+        // Handle Base64 Image
+        if (updateData.image) {
+            updateData.image = await uploadBase64(updateData.image)
         }
 
         // Ensure numeric fields are numbers

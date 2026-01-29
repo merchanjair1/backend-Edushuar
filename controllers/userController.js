@@ -1,5 +1,6 @@
 const userUseCases = require("../usecases/userUseCases")
 const { success, error } = require("../utils/responseHandler")
+const { uploadBase64 } = require("../utils/uploadHandler")
 
 
 
@@ -7,16 +8,14 @@ exports.createUser = async (req, res) => {
   try {
     const data = req.body
 
-    // If file is uploaded, set photoProfile
-    if (req.file) {
-      data.photoProfile = req.file.path
+    // Handle Base64 Image
+    if (data.photoProfile) {
+      data.photoProfile = await uploadBase64(data.photoProfile)
     }
 
+    // No need to parse 'data' string anymore as we expect pure JSON body without multipart
+    // But keeping it safe in case legacy calls still send it (though middleware is gone)
     let userData = { ...data }
-    if (data.data && typeof data.data === 'string') {
-      userData = { ...JSON.parse(data.data), ...userData }
-      delete userData.data
-    }
 
     const user = await userUseCases.createUser(userData)
     return success(res, { user }, 201)
@@ -53,26 +52,13 @@ exports.updateUser = async (req, res) => {
   try {
     console.log("DEBUG: Update Body:", JSON.stringify(req.body, null, 2))
 
-    // Extract ID and separate potentially nested 'data' from the rest of the body
-    const { id, data, ...restBody } = req.body
+    const { id, ...updateData } = req.body
 
     if (!id) return error(res, "Se requiere el ID del usuario para actualizar", 400)
 
-    // Determine the update payload
-    let updateData = {}
-
-    // 1. If 'data' is provided (JSON string or object) -> Use it (Legacy/Strict mode)
-    if (data) {
-      updateData = typeof data === 'string' ? JSON.parse(data) : data
-    }
-    // 2. Otherwise, use the flattened fields from restBody (Standard Form-Data)
-    else {
-      updateData = { ...restBody }
-    }
-
-    // If file is uploaded, override photoProfile
-    if (req.file) {
-      updateData.photoProfile = req.file.path
+    // Handle Base64 Image
+    if (updateData.photoProfile) {
+      updateData.photoProfile = await uploadBase64(updateData.photoProfile)
     }
 
     await userUseCases.updateUser(id, updateData)

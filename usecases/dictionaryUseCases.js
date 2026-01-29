@@ -1,8 +1,8 @@
 const DictionaryRepository = require("../repositories/dictionaryRepository")
 const DictionaryWord = require("../models/dictionaryModel")
 
-exports.addWord = async ({ wordShuar, wordSpanish, category, examples }) => {
-    const word = new DictionaryWord({ wordShuar, wordSpanish, category, examples })
+exports.addWord = async (data) => {
+    const word = new DictionaryWord(data)
     return await DictionaryRepository.save(word)
 }
 

@@ -1,20 +1,18 @@
 const dictionaryUseCases = require("../usecases/dictionaryUseCases")
 const { success, error } = require("../utils/responseHandler")
+const { uploadBase64 } = require("../utils/uploadHandler")
 
 exports.addWord = async (req, res) => {
     try {
         const data = req.body
-        if (req.file) {
-            data.image = req.file.path
+
+        if (data.image) {
+            data.image = await uploadBase64(data.image)
         }
 
-        let wordData = { ...data }
-        if (data.data && typeof data.data === 'string') {
-            wordData = { ...JSON.parse(data.data), ...wordData }
-            delete wordData.data
-        }
+        console.log("DEBUG: Data handling to usecase:", data) // Temporary debug
 
-        const word = await dictionaryUseCases.addWord(wordData)
+        const word = await dictionaryUseCases.addWord(data)
         return success(res, { word }, 201)
     } catch (e) {
         return error(res, e.message, 400)
@@ -38,18 +36,10 @@ exports.listWords = async (req, res) => {
 
 exports.updateWord = async (req, res) => {
     try {
-        const { id, data, ...restBody } = req.body
+        const { id, ...updateData } = req.body
 
-        // Handle multipart/form-data with potential 'data' JSON string
-        let updateData = {}
-        if (data) {
-            updateData = typeof data === 'string' ? JSON.parse(data) : data
-        } else {
-            updateData = { ...restBody }
-        }
-
-        if (req.file) {
-            updateData.image = req.file.path
+        if (updateData.image) {
+            updateData.image = await uploadBase64(updateData.image)
         }
 
         await dictionaryUseCases.updateWord(id, updateData)

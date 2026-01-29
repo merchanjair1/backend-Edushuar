@@ -1,18 +1,13 @@
 const storyUseCases = require("../usecases/storyUseCases")
 const { success, error } = require("../utils/responseHandler")
+const { uploadBase64 } = require("../utils/uploadHandler")
 
 exports.createStory = async (req, res) => {
     try {
-        const data = req.body
+        const storyData = { ...req.body }
 
-        if (req.file) {
-            data.coverImage = req.file.path
-        }
-
-        let storyData = { ...data }
-        if (data.data && typeof data.data === 'string') {
-            storyData = { ...JSON.parse(data.data), ...storyData }
-            delete storyData.data
+        if (storyData.coverImage) {
+            storyData.coverImage = await uploadBase64(storyData.coverImage)
         }
 
         const story = await storyUseCases.createStory(storyData)
@@ -47,20 +42,12 @@ exports.getStory = async (req, res) => {
 
 exports.updateStory = async (req, res) => {
     try {
-        const { id, data, ...restBody } = req.body
+        const { id, ...updateData } = req.body
 
         if (!id) return error(res, "Se requiere el ID del cuento para actualizar", 400)
 
-        let updateData = {}
-
-        if (data) {
-            updateData = typeof data === 'string' ? JSON.parse(data) : data
-        } else {
-            updateData = { ...restBody }
-        }
-
-        if (req.file) {
-            updateData.coverImage = req.file.path
+        if (updateData.coverImage) {
+            updateData.coverImage = await uploadBase64(updateData.coverImage)
         }
 
         await storyUseCases.updateStory(id, updateData)
