@@ -34,6 +34,12 @@ class DictionaryRepository {
         return snap.docs.map(d => new DictionaryWord({ id: d.id, ...d.data() }))
     }
 
+    async findById(id) {
+        const doc = await db.collection("dictionary").doc(id).get()
+        if (!doc.exists) return null
+        return new DictionaryWord({ id: doc.id, ...doc.data() })
+    }
+
     async update(id, data) {
         await db.collection("dictionary").doc(id).update(data)
     }
