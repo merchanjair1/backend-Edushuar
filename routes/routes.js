@@ -25,6 +25,7 @@ router.post("/users/delete", userController.deleteUser)
 
 // Dictionary Routes
 router.post("/dictionary/list", dictionaryController.listWords)
+router.post("/dictionary/get", dictionaryController.getWord)
 router.post("/dictionary/create", dictionaryController.addWord)
 router.post("/dictionary/update", dictionaryController.updateWord)
 router.post("/dictionary/delete", dictionaryController.deleteWord)
@@ -52,6 +53,7 @@ router.post("/progress/general", progressController.getGeneralProgress)
 // Contribution Routes
 router.post("/contributions/create", contributionController.createContribution)
 router.post("/contributions/list", contributionController.listContributions)
+router.post("/contributions/get", contributionController.getContribution)
 router.post("/contributions/approve", contributionController.approveContribution)
 router.post("/contributions/reject", contributionController.rejectContribution)
 

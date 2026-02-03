@@ -38,6 +38,7 @@ exports.listUsers = async (req, res) => {
 exports.getUser = async (req, res) => {
   try {
     const { id } = req.body
+    if (!id) return error(res, "Se requiere el ID del usuario", 400)
     const user = await userUseCases.getUserById(id)
     if (!user) return error(res, "Usuario no encontrado", 404)
     return success(res, { user })
@@ -73,6 +74,7 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.body
+    if (!id) return error(res, "Se requiere el ID del usuario", 400)
     await userUseCases.deleteUser(id)
     return success(res, { message: "Usuario eliminado" })
   } catch (e) {

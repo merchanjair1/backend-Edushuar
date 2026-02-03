@@ -27,13 +27,12 @@ exports.getGeneralProgress = async (req, res) => {
 
 exports.listProgress = async (req, res) => {
     try {
-        const { userId } = req.body
+        const { userId, page } = req.body
         if (!userId) return error(res, "Faltan datos (userId)", 400)
 
-        const page = parseInt(req.body.page) || 1
-        const limit = parseInt(req.body.limit) || 10
+        const p = parseInt(page) || 1
 
-        const result = await progressUseCases.getUserProgress(userId, page, limit)
+        const result = await progressUseCases.getUserProgress(userId, p)
         return success(res, result)
     } catch (e) {
         return error(res, e.message)

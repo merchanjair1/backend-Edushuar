@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
 
 
 app.use((req, res) => {
-  console.log(`DEBUG: 404 - Found Route ${req.originalUrl}`)
+  console.log(`DEBUG: 404 - Found Route [${req.method}] ${req.originalUrl}`)
   return error(res, "Ruta no encontrada", 404)
 })
 

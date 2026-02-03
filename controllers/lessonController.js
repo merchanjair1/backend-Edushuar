@@ -38,6 +38,7 @@ exports.listLessons = async (req, res) => {
 exports.getLesson = async (req, res) => {
     try {
         const { id } = req.body
+        if (!id) return error(res, "Se requiere el ID de la lección", 400)
         const lesson = await lessonUseCases.getLessonById(id)
         if (!lesson) return error(res, "Lección no encontrada", 404)
         return success(res, { lesson })
@@ -71,6 +72,7 @@ exports.updateLesson = async (req, res) => {
 exports.deleteLesson = async (req, res) => {
     try {
         const { id } = req.body
+        if (!id) return error(res, "Se requiere el ID de la lección", 400)
         await lessonUseCases.deleteLesson(id)
         return success(res, { message: "Lección eliminada" })
     } catch (e) {

@@ -52,9 +52,22 @@ exports.updateWord = async (req, res) => {
 exports.deleteWord = async (req, res) => {
     try {
         const { id } = req.body
+        if (!id) return error(res, "Se requiere el ID de la palabra", 400)
         await dictionaryUseCases.deleteWord(id)
         return success(res, { message: "Palabra eliminada" })
     } catch (e) {
         return error(res, e.message)
+    }
+}
+
+exports.getWord = async (req, res) => {
+    try {
+        const { id } = req.body
+        if (!id) return error(res, "Se requiere el ID de la palabra", 400)
+        const word = await dictionaryUseCases.getWordById(id)
+        if (!word) return error(res, "Palabra no encontrada", 404)
+        return success(res, { word })
+    } catch (e) {
+        return error(res, e.message, 400)
     }
 }

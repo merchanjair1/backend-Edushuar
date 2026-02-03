@@ -1,41 +1,58 @@
 const contributionUseCases = require("../usecases/contributionUseCases");
+const { success, error } = require("../utils/responseHandler");
 
 class ContributionController {
     async createContribution(req, res) {
         try {
             const contribution = await contributionUseCases.createContribution(req.body);
-            res.status(201).json(contribution);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
+            return success(res, { contribution }, 201);
+        } catch (e) {
+            return error(res, e.message, 400);
         }
     }
 
     async listContributions(req, res) {
         try {
-            const contributions = await contributionUseCases.listContributions(req.body); // Using POST body for filters as per project style
-            res.status(200).json(contributions);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
+            const { page, ...filters } = req.body;
+            const p = parseInt(page) || 1;
+            const result = await contributionUseCases.listContributions(filters, p);
+            return success(res, result);
+        } catch (e) {
+            return error(res, e.message, 400);
         }
     }
 
     async approveContribution(req, res) {
         try {
             const { id } = req.body;
+            if (!id) return error(res, "Se requiere el ID de la contribución", 400);
             const result = await contributionUseCases.approveContribution(id);
-            res.status(200).json(result);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
+            return success(res, result);
+        } catch (e) {
+            return error(res, e.message, 400);
         }
     }
 
     async rejectContribution(req, res) {
         try {
             const { id } = req.body;
+            if (!id) return error(res, "Se requiere el ID de la contribución", 400);
             const result = await contributionUseCases.rejectContribution(id);
-            res.status(200).json(result);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
+            return success(res, result);
+        } catch (e) {
+            return error(res, e.message, 400);
+        }
+    }
+
+    async getContribution(req, res) {
+        try {
+            const { id } = req.body;
+            if (!id) return error(res, "Se requiere el ID de la contribución", 400);
+            const contribution = await contributionUseCases.getContributionById(id);
+            if (!contribution) return error(res, "Contribución no encontrada", 404);
+            return success(res, { contribution });
+        } catch (e) {
+            return error(res, e.message, 400);
         }
     }
 }

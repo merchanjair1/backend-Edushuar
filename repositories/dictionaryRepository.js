@@ -15,7 +15,7 @@ class DictionaryRepository {
         return word
     }
 
-    async findAll(page = 1, limit = 10) {
+    async findAll(page = 1) {
         const snap = await db.collection("dictionary").get()
         const total = snap.size
         const words = snap.docs.map(d => new DictionaryWord({ id: d.id, ...d.data() }))

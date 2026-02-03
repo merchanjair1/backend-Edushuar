@@ -18,9 +18,7 @@ class ProgressRepository {
         return new Progress({ ...progress, updatedAt: new Date() })
     }
 
-    async findByUser(userId, page = 1, limit = 10) {
-        const offset = (page - 1) * limit
-
+    async findByUser(userId, page = 1) {
         // Count total for this user
         const countSnap = await db.collection("progress").where("userId", "==", userId).count().get()
         const total = countSnap.data().count
@@ -28,8 +26,6 @@ class ProgressRepository {
         const snap = await db.collection("progress")
             .where("userId", "==", userId)
             // .orderBy("updatedAt", "desc") // Requires composite index
-            .offset(offset)
-            .limit(limit)
             .get()
 
         const progressList = snap.docs.map(d => new Progress(d.data()))

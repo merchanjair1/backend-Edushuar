@@ -20,8 +20,17 @@ class ContributionUseCases {
         return await contributionRepository.save(contribution);
     }
 
-    async listContributions(filters) {
-        return await contributionRepository.findAll(filters);
+    async listContributions(filters, page = 1) {
+        const contributions = await contributionRepository.findAll(filters);
+        const total = contributions.length;
+        return {
+            items: contributions,
+            pagination: {
+                total,
+                page: parseInt(page),
+                totalPages: 1
+            }
+        };
     }
 
     async approveContribution(id) {
@@ -50,6 +59,10 @@ class ContributionUseCases {
 
         await contributionRepository.update(id, { status: "rejected" });
         return { message: "Contribution rejected" };
+    }
+
+    async getContributionById(id) {
+        return await contributionRepository.findById(id);
     }
 }
 

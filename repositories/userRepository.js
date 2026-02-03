@@ -33,7 +33,7 @@ class UserRepository {
     })
   }
 
-  async findAll(page = 1, limit = 10) {
+  async findAll(page = 1) {
     const docsSnap = await db.collection("users")
       .orderBy('createdAt', 'desc')
       .get()

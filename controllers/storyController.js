@@ -31,6 +31,7 @@ exports.listStories = async (req, res) => {
 exports.getStory = async (req, res) => {
     try {
         const { id } = req.body
+        if (!id) return error(res, "Se requiere el ID del cuento", 400)
         const story = await storyUseCases.getStoryById(id)
         if (!story) return error(res, "Cuento no encontrado", 404)
         return success(res, { story })
@@ -60,6 +61,7 @@ exports.updateStory = async (req, res) => {
 exports.deleteStory = async (req, res) => {
     try {
         const { id } = req.body
+        if (!id) return error(res, "Se requiere el ID del cuento", 400)
         await storyUseCases.deleteStory(id)
         return success(res, { message: "Cuento eliminado" })
     } catch (e) {

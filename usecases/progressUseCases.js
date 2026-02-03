@@ -37,27 +37,23 @@ exports.updateProgress = async ({ userId, lessonId, status, score, percentage })
     return savedProgress
 }
 
-exports.getUserProgress = async (userId, page = 1, limit = 10) => {
-    const { progressList, total } = await ProgressRepository.findByUser(userId, page, limit)
+exports.getUserProgress = async (userId, page = 1) => {
+    const { progressList, total } = await ProgressRepository.findByUser(userId, page)
     return {
         items: progressList,
         pagination: {
             total,
             page: parseInt(page),
-            limit: parseInt(limit),
-            totalPages: Math.ceil(total / limit)
+            totalPages: 1
         }
     }
 }
 
 exports.getGeneralProgress = async (userId) => {
-    const { total: totalLessons } = await LessonRepository.findAll(1, 1000) // Get all lessons count
-    // This is approximate if > 1000 lessons. 
+    const { total: totalLessons } = await LessonRepository.findAll() // Get all lessons count
 
     // Count completed by user
-    // Ideally repository should have countByStatus method. 
-    // For now we can fetch user progress and filter.
-    const { progressList } = await ProgressRepository.findByUser(userId, 1, 1000)
+    const { progressList } = await ProgressRepository.findByUser(userId)
     const completedLessons = progressList.filter(p => p.status === PROGRESS_STATUS.COMPLETED || p.percentage === 100).length
 
     // Calculate total score

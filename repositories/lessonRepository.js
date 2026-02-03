@@ -39,7 +39,7 @@ class LessonRepository {
         return new Lesson({ id: doc.id, ...doc.data() })
     }
 
-    async findAll(page = 1, limit = 10) {
+    async findAll(page = 1) {
         const snap = await db.collection("lessons").orderBy("order", "asc").get()
         const total = snap.size
         const lessons = snap.docs.map(d => new Lesson({ id: d.id, ...d.data() }))

@@ -22,7 +22,7 @@ class StoryRepository {
         return story
     }
 
-    async findAll(page = 1, limit = 10) {
+    async findAll(page = 1) {
         const snap = await db.collection("stories").get()
         const total = snap.size
         const stories = snap.docs.map(d => new Story({ id: d.id, ...d.data() }))
