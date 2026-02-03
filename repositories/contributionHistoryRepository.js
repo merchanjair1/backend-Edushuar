@@ -19,9 +19,7 @@ class ContributionHistoryRepository {
     }
 
     async findAll() {
-        const snap = await db.collection("contribution_history")
-            .orderBy("resolvedAt", "desc")
-            .get();
+        const snap = await db.collection("contribution_history").get();
 
         return snap.docs.map(doc => {
             const data = doc.data();

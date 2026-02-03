@@ -80,14 +80,27 @@ class ContributionUseCases {
         // Update status
         await contributionRepository.update(id, { status: "approved" });
 
+        // Local hydration for legacy records
+        if (!contribution.userName || !contribution.userPhoto) {
+            const user = await userRepository.findById(contribution.userId);
+            if (user) {
+                contribution.userName = contribution.userName || `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
+                contribution.userPhoto = contribution.userPhoto || user.photoProfile;
+            }
+        }
+
         // Log history
-        await contributionHistoryRepository.save(new ContributionHistory({
+        console.log(`DEBUG: Logging history for contribution ${id} - Status: approved`);
+        const historyEntry = new ContributionHistory({
             contributionId: id,
             status: "approved",
             userName: contribution.userName,
             userPhoto: contribution.userPhoto,
             contributionData: contribution.data
-        }));
+        });
+
+        await contributionHistoryRepository.save(historyEntry);
+        console.log(`DEBUG: History saved with ID: ${historyEntry.id}`);
 
         return { message: "Contribution approved and added to " + contribution.type };
     }
@@ -99,20 +112,35 @@ class ContributionUseCases {
 
         await contributionRepository.update(id, { status: "rejected" });
 
+        // Local hydration for legacy records
+        if (!contribution.userName || !contribution.userPhoto) {
+            const user = await userRepository.findById(contribution.userId);
+            if (user) {
+                contribution.userName = contribution.userName || `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
+                contribution.userPhoto = contribution.userPhoto || user.photoProfile;
+            }
+        }
+
         // Log history
-        await contributionHistoryRepository.save(new ContributionHistory({
+        console.log(`DEBUG: Logging history for contribution ${id} - Status: rejected`);
+        const historyEntry = new ContributionHistory({
             contributionId: id,
             status: "rejected",
             userName: contribution.userName,
             userPhoto: contribution.userPhoto,
             contributionData: contribution.data
-        }));
+        });
+
+        await contributionHistoryRepository.save(historyEntry);
+        console.log(`DEBUG: History saved with ID: ${historyEntry.id}`);
 
         return { message: "Contribution rejected" };
     }
 
     async listHistory() {
-        return await contributionHistoryRepository.findAll();
+        const history = await contributionHistoryRepository.findAll();
+        console.log(`DEBUG: Found ${history.length} history records`);
+        return history;
     }
 
     async getContributionById(id) {
