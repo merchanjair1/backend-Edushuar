@@ -2,7 +2,9 @@ const contributionRepository = require("../repositories/contributionRepository")
 const dictionaryRepository = require("../repositories/dictionaryRepository");
 const storyRepository = require("../repositories/storyRepository");
 const userRepository = require("../repositories/userRepository");
+const contributionHistoryRepository = require("../repositories/contributionHistoryRepository");
 const Contribution = require("../models/contributionModel");
+const ContributionHistory = require("../models/contributionHistoryModel");
 
 class ContributionUseCases {
     async createContribution(data) {
@@ -77,6 +79,16 @@ class ContributionUseCases {
 
         // Update status
         await contributionRepository.update(id, { status: "approved" });
+
+        // Log history
+        await contributionHistoryRepository.save(new ContributionHistory({
+            contributionId: id,
+            status: "approved",
+            userName: contribution.userName,
+            userPhoto: contribution.userPhoto,
+            contributionData: contribution.data
+        }));
+
         return { message: "Contribution approved and added to " + contribution.type };
     }
 
@@ -86,7 +98,21 @@ class ContributionUseCases {
         if (contribution.status !== "pending") throw new Error("Contribution is already " + contribution.status);
 
         await contributionRepository.update(id, { status: "rejected" });
+
+        // Log history
+        await contributionHistoryRepository.save(new ContributionHistory({
+            contributionId: id,
+            status: "rejected",
+            userName: contribution.userName,
+            userPhoto: contribution.userPhoto,
+            contributionData: contribution.data
+        }));
+
         return { message: "Contribution rejected" };
+    }
+
+    async listHistory() {
+        return await contributionHistoryRepository.findAll();
     }
 
     async getContributionById(id) {

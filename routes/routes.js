@@ -56,5 +56,6 @@ router.post("/contributions/list", contributionController.listContributions)
 router.post("/contributions/get", contributionController.getContribution)
 router.post("/contributions/approve", contributionController.approveContribution)
 router.post("/contributions/reject", contributionController.rejectContribution)
+router.post("/contributions/history", contributionController.listHistory)
 
 module.exports = router

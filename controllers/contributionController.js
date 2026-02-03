@@ -55,6 +55,15 @@ class ContributionController {
             return error(res, e.message, 400);
         }
     }
+
+    async listHistory(req, res) {
+        try {
+            const history = await contributionUseCases.listHistory();
+            return success(res, { history });
+        } catch (e) {
+            return error(res, e.message, 400);
+        }
+    }
 }
 
 module.exports = new ContributionController();
