@@ -34,6 +34,22 @@ class ContributionUseCases {
 
     async listContributions(filters, page = 1) {
         const contributions = await contributionRepository.findAll(filters);
+
+        // Hydrate details for older records that might be missing the denormalized userName/userPhoto
+        await Promise.all(contributions.map(async (c) => {
+            if (!c.userName || !c.userPhoto) {
+                const user = await userRepository.findById(c.userId);
+                if (user) {
+                    if (!c.userName) {
+                        c.userName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email || "Usuario";
+                    }
+                    if (!c.userPhoto) {
+                        c.userPhoto = user.photoProfile || null;
+                    }
+                }
+            }
+        }));
+
         const total = contributions.length;
         return {
             items: contributions,

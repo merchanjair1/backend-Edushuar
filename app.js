@@ -1,4 +1,4 @@
-// Last Update: 2026-02-03 - Added userPhoto and date standardization
+// Last Update: 2026-02-03 v2 - Added userPhoto hydration and list improvements
 const { success, error } = require("./utils/responseHandler")
 const express = require("express")
 require("./config/firebase")
