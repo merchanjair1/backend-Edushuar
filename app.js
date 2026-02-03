@@ -1,3 +1,4 @@
+// Last Update: 2026-02-03 - Added userPhoto and date standardization
 const { success, error } = require("./utils/responseHandler")
 const express = require("express")
 require("./config/firebase")
