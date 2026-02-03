@@ -21,14 +21,13 @@ exports.addWord = async (req, res) => {
 
 exports.listWords = async (req, res) => {
     try {
-        const { search, page, limit } = req.body
+        const { search, page } = req.body
         const p = parseInt(page) || 1
-        const l = parseInt(limit) || 10
 
         const result = search
-            ? await dictionaryUseCases.searchWords(search, p, l)
-            : await dictionaryUseCases.getAllWords(p, l)
-        return success(res, result) // result contains { items, pagination }
+            ? await dictionaryUseCases.searchWords(search, p)
+            : await dictionaryUseCases.getAllWords(p)
+        return success(res, result)
     } catch (e) {
         return error(res, e.message)
     }

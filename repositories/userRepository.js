@@ -34,19 +34,11 @@ class UserRepository {
   }
 
   async findAll(page = 1, limit = 10) {
-    const offset = (page - 1) * limit
-
-    // Get Total Count
-    const snapshot = await db.collection("users").count().get()
-    const total = snapshot.data().count
-
-    // Get Paginated Docs
     const docsSnap = await db.collection("users")
-      .orderBy('createdAt', 'desc') // Best practice for pagination
-      .offset(offset)
-      .limit(limit)
+      .orderBy('createdAt', 'desc')
       .get()
 
+    const total = docsSnap.size
     const users = docsSnap.docs.map(d => {
       const data = d.data()
       return new User({

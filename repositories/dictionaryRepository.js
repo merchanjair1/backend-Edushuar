@@ -16,11 +16,8 @@ class DictionaryRepository {
     }
 
     async findAll(page = 1, limit = 10) {
-        const offset = (page - 1) * limit
-        const countSnap = await db.collection("dictionary").count().get()
-        const total = countSnap.data().count
-
-        const snap = await db.collection("dictionary").offset(offset).limit(limit).get()
+        const snap = await db.collection("dictionary").get()
+        const total = snap.size
         const words = snap.docs.map(d => new DictionaryWord({ id: d.id, ...d.data() }))
         return { words, total }
     }

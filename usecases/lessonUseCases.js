@@ -6,15 +6,14 @@ exports.createLesson = async (data) => {
     return await LessonRepository.save(lesson)
 }
 
-exports.getAllLessons = async (page = 1, limit = 10) => {
-    const { lessons, total } = await LessonRepository.findAll(page, limit)
+exports.getAllLessons = async (page = 1) => {
+    const { lessons, total } = await LessonRepository.findAll()
     return {
         items: lessons,
         pagination: {
             total,
             page: parseInt(page),
-            limit: parseInt(limit),
-            totalPages: Math.ceil(total / limit)
+            totalPages: 1
         }
     }
 }

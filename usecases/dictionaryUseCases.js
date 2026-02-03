@@ -6,20 +6,19 @@ exports.addWord = async (data) => {
     return await DictionaryRepository.save(word)
 }
 
-exports.getAllWords = async (page = 1, limit = 10) => {
-    const { words, total } = await DictionaryRepository.findAll(page, limit)
+exports.getAllWords = async (page = 1) => {
+    const { words, total } = await DictionaryRepository.findAll()
     return {
         items: words,
         pagination: {
             total,
             page: parseInt(page),
-            limit: parseInt(limit),
-            totalPages: Math.ceil(total / limit)
+            totalPages: 1
         }
     }
 }
 
-exports.searchWords = async (term, page = 1, limit = 10) => {
+exports.searchWords = async (term, page = 1) => {
     const allWords = await DictionaryRepository.findByWord(term)
 
     let filtered = allWords
@@ -31,18 +30,13 @@ exports.searchWords = async (term, page = 1, limit = 10) => {
         )
     }
 
-    // Manual Pagination for Search
     const total = filtered.length
-    const start = (page - 1) * limit
-    const paginatedItems = filtered.slice(start, start + limit)
-
     return {
-        items: paginatedItems,
+        items: filtered,
         pagination: {
             total,
             page: parseInt(page),
-            limit: parseInt(limit),
-            totalPages: Math.ceil(total / limit)
+            totalPages: 1
         }
     }
 }

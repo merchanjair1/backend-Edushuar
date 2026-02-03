@@ -26,12 +26,10 @@ exports.createUser = async (req, res) => {
 
 exports.listUsers = async (req, res) => {
   try {
-    // Check query params first, then body (since it's a POST)
     const page = parseInt(req.query.page || req.body.page) || 1
-    const limit = parseInt(req.query.limit || req.body.limit) || 10
 
-    const result = await userUseCases.getAllUsers(page, limit)
-    return success(res, result) // result contains { items, pagination }
+    const result = await userUseCases.getAllUsers(page)
+    return success(res, result)
   } catch (e) {
     return error(res, e.message)
   }

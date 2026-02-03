@@ -20,9 +20,8 @@ exports.createStory = async (req, res) => {
 exports.listStories = async (req, res) => {
     try {
         const page = parseInt(req.body.page) || 1
-        const limit = parseInt(req.body.limit) || 10
 
-        const result = await storyUseCases.getAllStories(page, limit)
+        const result = await storyUseCases.getAllStories(page)
         return success(res, result)
     } catch (e) {
         return error(res, e.message)

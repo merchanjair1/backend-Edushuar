@@ -27,9 +27,8 @@ exports.createLesson = async (req, res) => {
 exports.listLessons = async (req, res) => {
     try {
         const page = parseInt(req.body.page) || 1
-        const limit = parseInt(req.body.limit) || 10
 
-        const result = await lessonUseCases.getAllLessons(page, limit)
+        const result = await lessonUseCases.getAllLessons(page)
         return success(res, result)
     } catch (e) {
         return error(res, e.message)

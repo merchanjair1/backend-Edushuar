@@ -66,15 +66,14 @@ exports.createUser = async (userData) => {
   return await UserRepository.saveProfile(newUser)
 }
 
-exports.getAllUsers = async (page = 1, limit = 10) => {
-  const { users, total } = await UserRepository.findAll(page, limit)
+exports.getAllUsers = async (page = 1) => {
+  const { users, total } = await UserRepository.findAll()
   return {
     items: users,
     pagination: {
       total,
       page: parseInt(page),
-      limit: parseInt(limit),
-      totalPages: Math.ceil(total / limit)
+      totalPages: 1
     }
   }
 }

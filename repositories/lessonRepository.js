@@ -40,11 +40,8 @@ class LessonRepository {
     }
 
     async findAll(page = 1, limit = 10) {
-        const offset = (page - 1) * limit
-        const countSnap = await db.collection("lessons").count().get()
-        const total = countSnap.data().count
-
-        const snap = await db.collection("lessons").offset(offset).limit(limit).get()
+        const snap = await db.collection("lessons").orderBy("order", "asc").get()
+        const total = snap.size
         const lessons = snap.docs.map(d => new Lesson({ id: d.id, ...d.data() }))
         return { lessons, total }
     }

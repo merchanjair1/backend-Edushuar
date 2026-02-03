@@ -5,6 +5,7 @@ const authController = require("../controllers/authController")
 const lessonController = require("../controllers/lessonController")
 const storyController = require("../controllers/storyController")
 const progressController = require("../controllers/progressController")
+const contributionController = require("../controllers/contributionController")
 // const upload = require("../utils/uploadHandler") // Removed as we use Base64 now
 const { validate } = require("../utils/validatorWrapper")
 
@@ -47,5 +48,11 @@ router.post("/progress/update", progressController.updateProgress)
 router.post("/progress/list", progressController.listProgress)
 router.post("/progress/get", progressController.getProgress)
 router.post("/progress/general", progressController.getGeneralProgress)
+
+// Contribution Routes
+router.post("/contributions/create", contributionController.createContribution)
+router.post("/contributions/list", contributionController.listContributions)
+router.post("/contributions/approve", contributionController.approveContribution)
+router.post("/contributions/reject", contributionController.rejectContribution)
 
 module.exports = router
