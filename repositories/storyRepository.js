@@ -1,4 +1,4 @@
-const { db } = require("../config/firebase")
+const { db, admin } = require("../config/firebase")
 const Story = require("../models/storyModel")
 
 class StoryRepository {
@@ -11,28 +11,33 @@ class StoryRepository {
             contentShuar: story.contentShuar || null,
             contentSpanish: story.contentSpanish || null,
             coverImage: story.coverImage || null,
-            imageDescription: story.imageDescription || ""
+            imageDescription: story.imageDescription || "",
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
         }
-        // Remove nulls if you prefer cleaning, or keep nulls. Firestore allows null.
-        // But it throws on undefined.
-        // We will stick to null defaulting.
 
         const docRef = await db.collection("stories").add(storyData)
         story.id = docRef.id
+        story.createdAt = new Date()
         return story
     }
 
     async findAll(page = 1) {
         const snap = await db.collection("stories").get()
         const total = snap.size
-        const stories = snap.docs.map(d => new Story({ id: d.id, ...d.data() }))
+        const stories = snap.docs.map(d => {
+            const data = d.data()
+            const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt
+            return new Story({ id: d.id, ...data, createdAt })
+        })
         return { stories, total }
     }
 
     async findById(id) {
         const doc = await db.collection("stories").doc(id).get()
         if (!doc.exists) return null
-        return new Story({ id: doc.id, ...doc.data() })
+        const data = doc.data()
+        const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt
+        return new Story({ id: doc.id, ...data, createdAt })
     }
 
     async update(id, data) {

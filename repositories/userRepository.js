@@ -29,7 +29,8 @@ class UserRepository {
     return new User({
       id: doc.id,
       ...data,
-      birthdate: data.birthdate ? data.birthdate.toDate() : null
+      birthdate: data.birthdate && data.birthdate.toDate ? data.birthdate.toDate() : data.birthdate,
+      createdAt: data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt
     })
   }
 
@@ -44,7 +45,8 @@ class UserRepository {
       return new User({
         id: d.id,
         ...data,
-        birthdate: data.birthdate ? data.birthdate.toDate() : null
+        birthdate: data.birthdate && data.birthdate.toDate ? data.birthdate.toDate() : data.birthdate,
+        createdAt: data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt
       })
     })
 

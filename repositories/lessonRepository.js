@@ -1,4 +1,4 @@
-const { db } = require("../config/firebase")
+const { db, admin } = require("../config/firebase")
 const Lesson = require("../models/lessonModel")
 
 class LessonRepository {
@@ -21,9 +21,11 @@ class LessonRepository {
             exercises: lesson.exercises || [],
             image: lesson.image || null,
             imageDescription: lesson.imageDescription || "",
-            order: lesson.order
+            order: lesson.order,
+            createdAt: admin.firestore.FieldValue.serverTimestamp()
         })
         lesson.id = docRef.id
+        lesson.createdAt = new Date()
         return lesson
     }
 
@@ -36,20 +38,28 @@ class LessonRepository {
 
         if (snap.empty) return null
         const doc = snap.docs[0]
-        return new Lesson({ id: doc.id, ...doc.data() })
+        const data = doc.data()
+        const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt
+        return new Lesson({ id: doc.id, ...data, createdAt })
     }
 
     async findAll(page = 1) {
         const snap = await db.collection("lessons").orderBy("order", "asc").get()
         const total = snap.size
-        const lessons = snap.docs.map(d => new Lesson({ id: d.id, ...d.data() }))
+        const lessons = snap.docs.map(d => {
+            const data = d.data()
+            const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt
+            return new Lesson({ id: d.id, ...data, createdAt })
+        })
         return { lessons, total }
     }
 
     async findById(id) {
         const doc = await db.collection("lessons").doc(id).get()
         if (!doc.exists) return null
-        return new Lesson({ id: doc.id, ...doc.data() })
+        const data = doc.data()
+        const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt
+        return new Lesson({ id: doc.id, ...data, createdAt })
     }
 
     async update(id, data) {
