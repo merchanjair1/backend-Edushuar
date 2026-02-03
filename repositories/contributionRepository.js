@@ -6,6 +6,7 @@ class ContributionRepository {
         const docRef = await db.collection("contributions").add({
             userId: contribution.userId,
             userName: contribution.userName || null,
+            userPhoto: contribution.userPhoto || null,
             type: contribution.type,
             status: contribution.status,
             data: contribution.data,

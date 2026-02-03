@@ -11,16 +11,19 @@ class ContributionUseCases {
             throw new Error("Missing required fields: userId, type, content");
         }
 
-        // Fetch user name
+        // Fetch user name and photo
         let userName = "Usuario Desconocido";
+        let userPhoto = null;
         const user = await userRepository.findById(userId);
         if (user) {
             userName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email || "Usuario";
+            userPhoto = user.photoProfile || null;
         }
 
         const contribution = new Contribution({
             userId,
             userName,
+            userPhoto,
             type,
             data: content,
             status: "pending"
