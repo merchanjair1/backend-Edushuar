@@ -17,7 +17,10 @@ class UserRepository {
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     }
 
-    await db.collection("users").doc(userEntity.id).set(firestoreData)
+    // Sanitize to remove undefined values
+    const sanitizedData = JSON.parse(JSON.stringify(firestoreData))
+
+    await db.collection("users").doc(userEntity.id).set(sanitizedData)
     return userEntity
   }
 

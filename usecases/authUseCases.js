@@ -68,6 +68,7 @@ exports.googleLogin = async (idToken) => {
         userProfile = new User({
             id: googleData.uid,
             authId: googleData.uid,
+            email: googleData.email,
             firstName: firstName,
             lastName: lastName,
             role: "student",

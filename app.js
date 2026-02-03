@@ -1,4 +1,4 @@
-// Last Update: 2026-02-03 v2 - Added userPhoto hydration and list improvements
+// Last Update: 2026-02-03 v3 - Fixed Google Login missing email and added sanitization
 const { success, error } = require("./utils/responseHandler")
 const express = require("express")
 require("./config/firebase")
