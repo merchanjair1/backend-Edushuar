@@ -3,13 +3,16 @@ const Contribution = require("../models/contributionModel");
 
 class ContributionRepository {
     async save(contribution) {
+        // Sanitize data to remove undefined or unexpected types
+        const sanitizedData = JSON.parse(JSON.stringify(contribution.data || {}));
+
         const docRef = await db.collection("contributions").add({
             userId: contribution.userId,
             userName: contribution.userName || null,
             userPhoto: contribution.userPhoto || null,
             type: contribution.type,
             status: contribution.status,
-            data: contribution.data,
+            data: sanitizedData,
             createdAt: contribution.createdAt instanceof Date ? contribution.createdAt : new Date(contribution.createdAt)
         });
         contribution.id = docRef.id;

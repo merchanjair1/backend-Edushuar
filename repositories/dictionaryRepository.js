@@ -3,7 +3,7 @@ const DictionaryWord = require("../models/dictionaryModel")
 
 class DictionaryRepository {
     async save(word) {
-        const docRef = await db.collection("dictionary").add({
+        const data = {
             wordShuar: word.wordShuar,
             wordSpanish: word.wordSpanish,
             category: word.category,
@@ -11,7 +11,12 @@ class DictionaryRepository {
             image: word.image || null,
             imageDescription: word.imageDescription || "",
             createdAt: admin.firestore.FieldValue.serverTimestamp()
-        })
+        }
+
+        // Sanitize to remove undefined
+        const sanitizedData = JSON.parse(JSON.stringify(data));
+
+        const docRef = await db.collection("dictionary").add(sanitizedData)
         word.id = docRef.id
         word.createdAt = new Date()
         return word

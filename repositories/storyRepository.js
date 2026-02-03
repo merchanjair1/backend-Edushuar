@@ -15,7 +15,10 @@ class StoryRepository {
             createdAt: admin.firestore.FieldValue.serverTimestamp()
         }
 
-        const docRef = await db.collection("stories").add(storyData)
+        // Sanitize to remove undefined
+        const sanitizedData = JSON.parse(JSON.stringify(storyData));
+
+        const docRef = await db.collection("stories").add(sanitizedData)
         story.id = docRef.id
         story.createdAt = new Date()
         return story
