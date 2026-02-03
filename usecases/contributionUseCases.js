@@ -91,12 +91,16 @@ class ContributionUseCases {
 
         // Log history
         console.log(`DEBUG: Logging history for contribution ${id} - Status: approved`);
+
+        // Sanitize data (remove undefineds, ensure plain object)
+        const sanitizedData = JSON.parse(JSON.stringify(contribution.data || {}));
+
         const historyEntry = new ContributionHistory({
             contributionId: id,
             status: "approved",
             userName: contribution.userName,
             userPhoto: contribution.userPhoto,
-            contributionData: contribution.data
+            contributionData: sanitizedData
         });
 
         await contributionHistoryRepository.save(historyEntry);
@@ -123,12 +127,16 @@ class ContributionUseCases {
 
         // Log history
         console.log(`DEBUG: Logging history for contribution ${id} - Status: rejected`);
+
+        // Sanitize data (remove undefineds, ensure plain object)
+        const sanitizedData = JSON.parse(JSON.stringify(contribution.data || {}));
+
         const historyEntry = new ContributionHistory({
             contributionId: id,
             status: "rejected",
             userName: contribution.userName,
             userPhoto: contribution.userPhoto,
-            contributionData: contribution.data
+            contributionData: sanitizedData
         });
 
         await contributionHistoryRepository.save(historyEntry);
