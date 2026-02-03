@@ -1,6 +1,7 @@
 const contributionRepository = require("../repositories/contributionRepository");
 const dictionaryRepository = require("../repositories/dictionaryRepository");
 const storyRepository = require("../repositories/storyRepository");
+const userRepository = require("../repositories/userRepository");
 const Contribution = require("../models/contributionModel");
 
 class ContributionUseCases {
@@ -10,8 +11,16 @@ class ContributionUseCases {
             throw new Error("Missing required fields: userId, type, content");
         }
 
+        // Fetch user name
+        let userName = "Usuario Desconocido";
+        const user = await userRepository.findById(userId);
+        if (user) {
+            userName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email || "Usuario";
+        }
+
         const contribution = new Contribution({
             userId,
+            userName,
             type,
             data: content,
             status: "pending"

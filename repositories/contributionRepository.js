@@ -5,6 +5,7 @@ class ContributionRepository {
     async save(contribution) {
         const docRef = await db.collection("contributions").add({
             userId: contribution.userId,
+            userName: contribution.userName || null,
             type: contribution.type,
             status: contribution.status,
             data: contribution.data,
@@ -28,13 +29,20 @@ class ContributionRepository {
         }
 
         const snap = await query.orderBy("createdAt", "desc").get();
-        return snap.docs.map(doc => new Contribution({ id: doc.id, ...doc.data() }));
+        return snap.docs.map(doc => {
+            const data = doc.data();
+            // Handle Firestore Timestamp to JS Date for better JSON formatting
+            const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt;
+            return new Contribution({ id: doc.id, ...data, createdAt });
+        });
     }
 
     async findById(id) {
         const doc = await db.collection("contributions").doc(id).get();
         if (!doc.exists) return null;
-        return new Contribution({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : data.createdAt;
+        return new Contribution({ id: doc.id, ...data, createdAt });
     }
 
     async update(id, data) {

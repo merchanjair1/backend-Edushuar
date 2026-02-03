@@ -28,7 +28,11 @@ class ProgressRepository {
             // .orderBy("updatedAt", "desc") // Requires composite index
             .get()
 
-        const progressList = snap.docs.map(d => new Progress(d.data()))
+        const progressList = snap.docs.map(d => {
+            const data = d.data()
+            const updatedAt = data.updatedAt && data.updatedAt.toDate ? data.updatedAt.toDate() : data.updatedAt
+            return new Progress({ ...data, updatedAt })
+        })
         return { progressList, total }
     }
 
@@ -36,7 +40,9 @@ class ProgressRepository {
         const docId = `${userId}_${lessonId}`
         const doc = await db.collection("progress").doc(docId).get()
         if (!doc.exists) return null
-        return new Progress(doc.data())
+        const data = doc.data()
+        const updatedAt = data.updatedAt && data.updatedAt.toDate ? data.updatedAt.toDate() : data.updatedAt
+        return new Progress({ ...data, updatedAt })
     }
 }
 
