@@ -29,3 +29,8 @@ exports.updateStory = async (id, data) => {
 exports.deleteStory = async (id) => {
     return await StoryRepository.delete(id)
 }
+
+exports.createStoriesBulk = async (dataArray) => {
+    const stories = dataArray.map(data => new Story(data))
+    return await StoryRepository.bulkSave(stories)
+}

@@ -29,3 +29,8 @@ exports.updateLesson = async (id, data) => {
 exports.deleteLesson = async (id) => {
     return await LessonRepository.delete(id)
 }
+
+exports.createLessonsBulk = async (dataArray) => {
+    const lessons = dataArray.map(data => new Lesson(data))
+    return await LessonRepository.bulkSave(lessons)
+}

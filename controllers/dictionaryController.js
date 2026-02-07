@@ -71,3 +71,22 @@ exports.getWord = async (req, res) => {
         return error(res, e.message, 400)
     }
 }
+
+exports.addWordsBulk = async (req, res) => {
+    try {
+        const wordsData = req.body // Expecting an array
+        if (!Array.isArray(wordsData)) return error(res, "Se requiere un arreglo de palabras", 400)
+
+        const processedWords = await Promise.all(wordsData.map(async (data) => {
+            if (data.image) {
+                data.image = await uploadBase64(data.image)
+            }
+            return data
+        }))
+
+        const result = await dictionaryUseCases.addWordsBulk(processedWords)
+        return success(res, { words: result }, 201)
+    } catch (e) {
+        return error(res, e.message, 400)
+    }
+}

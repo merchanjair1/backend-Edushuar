@@ -79,3 +79,26 @@ exports.deleteLesson = async (req, res) => {
         return error(res, e.message)
     }
 }
+
+exports.createLessonsBulk = async (req, res) => {
+    try {
+        const lessonsData = req.body // Expecting an array
+        if (!Array.isArray(lessonsData)) return error(res, "Se requiere un arreglo de lecciones", 400)
+
+        const processedLessons = await Promise.all(lessonsData.map(async (data) => {
+            if (data.image) {
+                data.image = await uploadBase64(data.image)
+            }
+            // Ensure numeric fields are numbers
+            if (data.order) data.order = parseInt(data.order)
+            if (data.duration) data.duration = parseInt(data.duration)
+            if (data.totalPoints) data.totalPoints = parseInt(data.totalPoints)
+            return data
+        }))
+
+        const result = await lessonUseCases.createLessonsBulk(processedLessons)
+        return success(res, { lessons: result }, 201)
+    } catch (e) {
+        return error(res, e.message, 400)
+    }
+}

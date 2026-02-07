@@ -69,6 +69,43 @@ class LessonRepository {
     async delete(id) {
         await db.collection("lessons").doc(id).delete()
     }
+    async bulkSave(lessons) {
+        const batch = db.batch()
+        const savedLessons = []
+
+        // Get the last order once to start incrementing
+        const maxOrderSnap = await db.collection("lessons").orderBy("order", "desc").limit(1).get()
+        let currentOrder = maxOrderSnap.empty ? 0 : (maxOrderSnap.docs[0].data().order || 0)
+
+        lessons.forEach(lesson => {
+            currentOrder++
+            lesson.order = currentOrder
+
+            const docRef = db.collection("lessons").doc()
+            const data = {
+                title: lesson.title,
+                level: lesson.level,
+                description: lesson.description || "",
+                duration: lesson.duration || 0,
+                totalPoints: lesson.totalPoints || 0,
+                content: lesson.content || {},
+                exercises: lesson.exercises || [],
+                image: lesson.image || null,
+                imageDescription: lesson.imageDescription || "",
+                order: lesson.order,
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            }
+            const sanitizedData = JSON.parse(JSON.stringify(data))
+            batch.set(docRef, sanitizedData)
+
+            lesson.id = docRef.id
+            lesson.createdAt = new Date()
+            savedLessons.push(lesson)
+        })
+
+        await batch.commit()
+        return savedLessons
+    }
 }
 
 module.exports = new LessonRepository()

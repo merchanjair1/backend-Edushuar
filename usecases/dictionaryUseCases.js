@@ -52,3 +52,8 @@ exports.updateWord = async (id, data) => {
 exports.deleteWord = async (id) => {
     return await DictionaryRepository.delete(id)
 }
+
+exports.addWordsBulk = async (dataArray) => {
+    const words = dataArray.map(data => new DictionaryWord(data))
+    return await DictionaryRepository.bulkSave(words)
+}

@@ -68,3 +68,22 @@ exports.deleteStory = async (req, res) => {
         return error(res, e.message)
     }
 }
+
+exports.createStoriesBulk = async (req, res) => {
+    try {
+        const storiesData = req.body // Expecting an array
+        if (!Array.isArray(storiesData)) return error(res, "Se requiere un arreglo de cuentos", 400)
+
+        const processedStories = await Promise.all(storiesData.map(async (data) => {
+            if (data.coverImage) {
+                data.coverImage = await uploadBase64(data.coverImage)
+            }
+            return data
+        }))
+
+        const result = await storyUseCases.createStoriesBulk(processedStories)
+        return success(res, { stories: result }, 201)
+    } catch (e) {
+        return error(res, e.message, 400)
+    }
+}

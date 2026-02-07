@@ -57,6 +57,32 @@ class DictionaryRepository {
     async delete(id) {
         await db.collection("dictionary").doc(id).delete()
     }
+    async bulkSave(words) {
+        const batch = db.batch()
+        const savedWords = []
+
+        words.forEach(word => {
+            const docRef = db.collection("dictionary").doc()
+            const data = {
+                wordShuar: word.wordShuar,
+                wordSpanish: word.wordSpanish,
+                category: word.category,
+                examples: word.examples,
+                image: word.image || null,
+                imageDescription: word.imageDescription || "",
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            }
+            const sanitizedData = JSON.parse(JSON.stringify(data))
+            batch.set(docRef, sanitizedData)
+
+            word.id = docRef.id
+            word.createdAt = new Date()
+            savedWords.push(word)
+        })
+
+        await batch.commit()
+        return savedWords
+    }
 }
 
 module.exports = new DictionaryRepository()

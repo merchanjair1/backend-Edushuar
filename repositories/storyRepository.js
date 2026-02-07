@@ -54,6 +54,34 @@ class StoryRepository {
     async delete(id) {
         await db.collection("stories").doc(id).delete()
     }
+    async bulkSave(stories) {
+        const batch = db.batch()
+        const savedStories = []
+
+        stories.forEach(story => {
+            const docRef = db.collection("stories").doc()
+            const storyData = {
+                title_español: story.title_español || null,
+                title_shuar: story.title_shuar || null,
+                category: story.category || null,
+                author: story.author || null,
+                contentShuar: story.contentShuar || null,
+                contentSpanish: story.contentSpanish || null,
+                coverImage: story.coverImage || null,
+                imageDescription: story.imageDescription || "",
+                createdAt: admin.firestore.FieldValue.serverTimestamp()
+            }
+            const sanitizedData = JSON.parse(JSON.stringify(storyData))
+            batch.set(docRef, sanitizedData)
+
+            story.id = docRef.id
+            story.createdAt = new Date()
+            savedStories.push(story)
+        })
+
+        await batch.commit()
+        return savedStories
+    }
 }
 
 module.exports = new StoryRepository()
