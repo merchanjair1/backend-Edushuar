@@ -12,6 +12,7 @@ const { validate } = require("../utils/validatorWrapper")
 // Auth Routes
 router.post("/login", validate(["email", "password"]), authController.login)
 router.post("/registre", validate(["email", "password", "firstName", "lastName"]), authController.register)
+router.post("/register-massive", authController.registerUsersMassive)
 router.post("/google-login", validate(["idToken"]), authController.googleLogin)
 router.post("/google-register", validate(["idToken"]), authController.googleRegister)
 router.post("/reset-password", validate(["email"]), authController.requestPasswordReset)
@@ -21,6 +22,7 @@ router.post("/users/list", userController.listUsers)
 router.post("/users/get", userController.getUser)
 router.post("/users/update", userController.updateUser)
 router.post("/users/create", validate(["email", "password", "firstName", "lastName"]), userController.createUser)
+router.post("/users/bulk-create", userController.createUsersBulk)
 router.post("/users/delete", userController.deleteUser)
 
 // Dictionary Routes

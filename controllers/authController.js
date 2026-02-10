@@ -58,3 +58,15 @@ exports.requestPasswordReset = async (req, res) => {
         return error(res, e.message, 400)
     }
 }
+
+exports.registerUsersMassive = async (req, res) => {
+    try {
+        const usersData = req.body
+        if (!Array.isArray(usersData)) return error(res, "Se requiere un arreglo de usuarios", 400)
+
+        const result = await authUseCases.registerMassive(usersData)
+        return success(res, result, 201)
+    } catch (e) {
+        return error(res, e.message, 400)
+    }
+}

@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs")
 class AuthRepository {
 
     async saveFirestoreAuth(uid, email, password) {
+        if (!password) return
         const hash = await bcrypt.hash(password, 10)
         await db.collection('auth').doc(uid).set({
             email,
@@ -93,6 +94,32 @@ class AuthRepository {
         }
 
         return { success: true, message: "Correo de restablecimiento enviado" }
+    }
+
+    async bulkCreateCredentials(usersData) {
+        const results = []
+        for (const data of usersData) {
+            try {
+                const userRecord = await admin.auth().createUser({
+                    email: data.email,
+                    password: data.password
+                })
+                results.push({
+                    success: true,
+                    uid: userRecord.uid,
+                    email: userRecord.email,
+                    originalData: data
+                })
+            } catch (error) {
+                results.push({
+                    success: false,
+                    email: data.email,
+                    error: error.message,
+                    originalData: data
+                })
+            }
+        }
+        return results
     }
 }
 

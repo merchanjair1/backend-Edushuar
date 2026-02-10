@@ -138,3 +138,77 @@ exports.login = async ({ email, password }) => {
 exports.googleLogin = async (idToken) => {
   return await UserRepository.googleLogin(idToken)
 }
+
+exports.createUsersBulk = async (usersData) => {
+  if (!Array.isArray(usersData)) throw new Error("Se requiere un arreglo de usuarios")
+
+  // Pre-process roles and dates
+  const processedData = usersData.map(userData => {
+    let roleInput = (userData.role || "").toLowerCase().trim()
+    let finalRole = "student"
+    if (roleInput === "administrador" || roleInput === "admin") {
+      finalRole = "admin"
+    }
+
+    let parsedDate = null
+    if (userData.birthdate) {
+      if (typeof userData.birthdate === 'string' && userData.birthdate.includes('/')) {
+        const [day, month, year] = userData.birthdate.split('/')
+        parsedDate = new Date(`${year}-${month}-${day}`)
+      } else {
+        parsedDate = new Date(userData.birthdate)
+      }
+      if (isNaN(parsedDate.getTime())) parsedDate = null
+    }
+
+    return { ...userData, role: finalRole, parsedBirthdate: parsedDate }
+  })
+
+  // 1. Bulk Create Credentials
+  const authResults = await AuthRepository.bulkCreateCredentials(processedData)
+  const successfulAuths = authResults.filter(r => r.success)
+  const failures = authResults.filter(r => !r.success)
+
+  if (successfulAuths.length === 0) {
+    return {
+      message: "No se pudo crear ningún usuario",
+      successCount: 0,
+      failCount: failures.length,
+      failures: failures.map(f => ({ email: f.email, error: f.error }))
+    }
+  }
+
+  // 2. Prepare Entities and Firestore Auth records
+  const userEntities = []
+  for (const auth of successfulAuths) {
+    const data = auth.originalData
+
+    // Save to explicit 'auth' collection as done in individual createUser
+    if (data.password) {
+      await AuthRepository.saveFirestoreAuth(auth.uid, auth.email, data.password)
+    }
+
+    userEntities.push(new User({
+      id: auth.uid,
+      authId: auth.uid,
+      email: auth.email,
+      firstName: data.firstName || "Usuario",
+      lastName: data.lastName || "EduShuar",
+      role: data.role,
+      photoProfile: data.photoProfile || null,
+      birthdate: data.parsedBirthdate,
+      status: "active",
+      createdAt: new Date()
+    }))
+  }
+
+  // 3. Bulk Save Profiles
+  await UserRepository.bulkSaveProfiles(userEntities)
+
+  return {
+    message: "Creación masiva de usuarios completada",
+    successCount: successfulAuths.length,
+    failCount: failures.length,
+    failures: failures.map(f => ({ email: f.email, error: f.error }))
+  }
+}

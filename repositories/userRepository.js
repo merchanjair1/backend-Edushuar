@@ -67,6 +67,35 @@ class UserRepository {
     await db.collection("users").doc(id).delete()
   }
 
+  async bulkSaveProfiles(userEntities) {
+    const batch = db.batch()
+    const savedUsers = []
+
+    userEntities.forEach(userEntity => {
+      const docRef = db.collection("users").doc(userEntity.id)
+      const firestoreData = {
+        authId: userEntity.authId,
+        email: userEntity.email,
+        firstName: userEntity.firstName,
+        lastName: userEntity.lastName,
+        role: userEntity.role || "student",
+        photoProfile: userEntity.photoProfile || null,
+        photoDescription: userEntity.photoDescription || "",
+        birthdate: userEntity.birthdate ? admin.firestore.Timestamp.fromDate(new Date(userEntity.birthdate)) : null,
+        status: userEntity.status || "active",
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      }
+
+      // Sanitize to remove undefined values
+      const sanitizedData = JSON.parse(JSON.stringify(firestoreData))
+      batch.set(docRef, sanitizedData)
+      savedUsers.push(userEntity)
+    })
+
+    await batch.commit()
+    return savedUsers
+  }
+
 }
 
 module.exports = new UserRepository()

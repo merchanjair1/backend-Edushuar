@@ -114,3 +114,49 @@ exports.requestPasswordReset = async (email) => {
         throw new Error("Error al enviar el correo de restablecimiento: " + error.message)
     }
 }
+
+exports.registerMassive = async (usersData) => {
+    if (!Array.isArray(usersData)) throw new Error("Se requiere un arreglo de usuarios")
+
+    // 1. Bulk Create Credentials
+    const authResults = await AuthRepository.bulkCreateCredentials(usersData)
+
+    const successfulAuths = authResults.filter(r => r.success)
+    const failedAuths = authResults.filter(r => !r.success)
+
+    if (successfulAuths.length === 0) {
+        return {
+            message: "No se pudo registrar ningún usuario",
+            successCount: 0,
+            failCount: failedAuths.length,
+            failures: failedAuths.map(f => ({ email: f.email, error: f.error }))
+        }
+    }
+
+    // 2. Prepare User Entities for successful auths
+    const userEntities = successfulAuths.map(auth => {
+        const data = auth.originalData
+        return new User({
+            id: auth.uid,
+            authId: auth.uid,
+            firstName: data.firstName || "Usuario",
+            lastName: data.lastName || "EduShuar",
+            email: auth.email,
+            role: data.role || "student",
+            photoProfile: null,
+            birthdate: data.birthdate || null,
+            status: "active",
+            createdAt: new Date()
+        })
+    })
+
+    // 3. Bulk Save Profiles in Firestore
+    await UserRepository.bulkSaveProfiles(userEntities)
+
+    return {
+        message: "Registro masivo completado",
+        successCount: successfulAuths.length,
+        failCount: failedAuths.length,
+        failures: failedAuths.map(f => ({ email: f.email, error: f.error }))
+    }
+}

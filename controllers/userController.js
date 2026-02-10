@@ -82,3 +82,22 @@ exports.deleteUser = async (req, res) => {
   }
 }
 
+exports.createUsersBulk = async (req, res) => {
+  try {
+    const usersData = req.body
+    if (!Array.isArray(usersData)) return error(res, "Se requiere un arreglo de usuarios", 400)
+
+    const processedUsers = await Promise.all(usersData.map(async (data) => {
+      if (data.photoProfile) {
+        data.photoProfile = await uploadBase64(data.photoProfile)
+      }
+      return data
+    }))
+
+    const result = await userUseCases.createUsersBulk(processedUsers)
+    return success(res, result, 201)
+  } catch (e) {
+    return error(res, e.message, 400)
+  }
+}
+
